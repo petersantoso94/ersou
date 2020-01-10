@@ -37,6 +37,7 @@ export default class Register extends Vue {
   showPass: boolean = false;
   password: string = "";
   email: string = "";
+  netError: Error = new Error();
   rules: IRule = {
     required: (value: string) => !!value || "Required",
     counter: (value: string) => value.length <= 20 || "Max 20 characters",
@@ -50,11 +51,11 @@ export default class Register extends Vue {
       FirebaseAPI.FirebaseRegister({
         email: this.email,
         password: this.password
-      }).then(data => {
-        if (data) {
-          console.log(data);
-        }
-      });
+      })
+        .then(data => {})
+        .catch(e => {
+          this.netError = e;
+        });
     }
   }
 }
