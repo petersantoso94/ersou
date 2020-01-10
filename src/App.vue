@@ -1,6 +1,6 @@
 <template>
   <v-app id="inspire">
-    <v-navigation-drawer app v-model="drawer">
+    <v-navigation-drawer app v-model="drawer" v-if="!this.isLandingPage">
       <v-list dense nav class="py-0">
         <v-list-item two-line>
           <v-list-item-avatar>
@@ -21,15 +21,20 @@
           </v-list-item-icon>
 
           <v-list-item-content>
-            <router-link :to="item.to" tag="v-list-item-title">{{
-              item.title
-            }}</router-link>
+            <router-link :to="item.to"
+              ><v-list-item-title>{{
+                item.title
+              }}</v-list-item-title></router-link
+            >
           </v-list-item-content>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
-    <v-app-bar app color="primary" dark>
+    <v-app-bar app color="primary" dark v-if="!this.isLandingPage">
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <router-link to="/"
+        ><v-img :src="require('@/assets/logo.svg')" max-width="40"></v-img
+      ></router-link>
       <v-toolbar-title>{{ $route.name }}</v-toolbar-title>
     </v-app-bar>
     <v-content>
@@ -40,14 +45,20 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 
 @Component({})
 export default class App extends Vue {
   drawer: boolean = false;
+  isLandingPage: boolean = true;
   items: { [key: string]: string }[] = [
-    { title: "Dashboard", icon: "mdi-view-dashboard", to: "/" },
+    { title: "Dashboard", icon: "mdi-view-dashboard", to: "/home" },
     { title: "About", icon: "mdi-help-box", to: "/about" }
   ];
+
+  @Watch("$route")
+  checkLandingPage() {
+    this.isLandingPage = this.$route.name === "Landing";
+  }
 }
 </script>

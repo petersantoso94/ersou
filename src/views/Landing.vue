@@ -1,0 +1,9 @@
+<template>
+  <div>Landing page, go to <router-link to="/home">Homepage</router-link></div>
+</template>
+
+<script>
+export default {};
+</script>
+
+<style></style>
