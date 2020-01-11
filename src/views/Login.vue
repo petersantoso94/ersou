@@ -19,7 +19,7 @@
             @click:append="showPass = !showPass"
             required
           ></v-text-field>
-          <v-btn :disabled="!regValid" color="success" class="mr-4" @click="validate">Register</v-btn>
+          <v-btn :disabled="!regValid" color="success" class="mr-4" @click="validate">Login</v-btn>
         </v-form>
       </v-row>
     </v-row>
@@ -35,7 +35,7 @@ import FirebaseAPI from "@/api/firebase";
 import { SystemAlert } from "../utils/event-bus";
 
 @Component({})
-export default class Register extends Vue {
+export default class Login extends Vue {
   $refs!: {
     form: HTMLFormElement;
   };
@@ -61,11 +61,13 @@ export default class Register extends Vue {
   }
   validate() {
     if (this.$refs.form.validate()) {
-      FirebaseAPI.FBRegister({
+      FirebaseAPI.FBLogin({
         email: this.email,
         password: this.password
       })
-        .then(data => {})
+        .then(data => {
+          if (data) this.$router.replace({ name: "Home" });
+        })
         .catch(e => {
           if (e.code === "auth/email-already-in-use")
             this.rules.email = e.message;
