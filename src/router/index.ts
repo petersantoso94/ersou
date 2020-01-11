@@ -1,7 +1,8 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import Landing from "../views/Landing.vue";
-import firebase from "firebase"
+import { getCurrentUser } from "@/main"
+import store from "@/store"
 
 Vue.use(VueRouter);
 
@@ -45,12 +46,12 @@ const router = new VueRouter({
   routes
 });
 
-router.beforeEach((to, from, next) => {
-  if (to.name === "Home" && (!firebase.auth().currentUser || !firebase.auth().currentUser!.uid)) {
+router.beforeEach(async (to, from, next) => {
+  if (to.name === "Home" && (!store.getters["User/User"].loggedIn || !await getCurrentUser())) {
     router.replace({ name: "Login" })
     return
   }
-  if (to.name === "Login" && (firebase.auth().currentUser && firebase.auth().currentUser!.uid)) {
+  if (to.name === "Login" && (store.getters["User/User"].loggedIn || await getCurrentUser())) {
     router.replace({ name: "Home" })
     return
   }

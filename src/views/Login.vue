@@ -33,12 +33,15 @@ import { IRule } from "@/models/interfaces/Common";
 import { IUser } from "@/models/interfaces/User";
 import FirebaseAPI from "@/api/firebase";
 import { SystemAlert } from "../utils/event-bus";
+import { State, Action, Getter, namespace } from "vuex-class";
+const userModule = namespace("User");
 
 @Component({})
 export default class Login extends Vue {
   $refs!: {
     form: HTMLFormElement;
   };
+  @Action("User/fetchUser") private setUser!: any;
   regValid: boolean = true;
   showPass: boolean = false;
   password: string = "";
@@ -66,7 +69,10 @@ export default class Login extends Vue {
         password: this.password
       })
         .then(data => {
-          if (data) this.$router.replace({ name: "Home" });
+          if (data) {
+            this.setUser(data);
+            this.$router.replace({ name: "Home" });
+          }
         })
         .catch(e => {
           if (e.code === "auth/email-already-in-use")

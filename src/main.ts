@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router'
 import vuetify from './plugins/vuetify';
 import * as firebase from "firebase";
+import store from "./store"
 
 Vue.config.productionTip = false
 // Your web app's Firebase configuration
@@ -18,11 +19,22 @@ var firebaseConfig = {
 };
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-export const db = firebase.firestore()
 firebase.analytics();
+export const getCurrentUser = () => {
+  return new Promise((resolve, reject) => {
+    const unsubscribe = firebase.auth().onAuthStateChanged(user => {
+      unsubscribe();
+      store.dispatch("User/fetchUser", user);
+      resolve(user);
+    }, reject);
+  })
+};
+
+export const db = firebase.firestore()
 
 new Vue({
   router,
   vuetify,
+  store,
   render: h => h(App)
 }).$mount('#app')
