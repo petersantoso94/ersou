@@ -39,6 +39,10 @@
     </v-app-bar>
     <v-content>
       <router-view />
+      <v-snackbar v-model="snackbar" :timeout="2000">
+        {{ text }}
+        <v-btn color="blue" text @click="snackbar = false">Close</v-btn>
+      </v-snackbar>
     </v-content>
   </v-app>
 </template>
@@ -46,15 +50,25 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Watch } from "vue-property-decorator";
+import EventBus from "@/utils/event-bus";
 
 @Component({})
 export default class App extends Vue {
   drawer: boolean = false;
+  snackbar: boolean = false;
+  text: string = "";
   isLandingPage: boolean = true;
   items: { [key: string]: string }[] = [
     { title: "Dashboard", icon: "mdi-view-dashboard", to: "/home" },
     { title: "About", icon: "mdi-help-box", to: "/about" }
   ];
+
+  mounted() {
+    EventBus.$on("system-alert", (msg: string) => {
+      this.text = msg;
+      this.snackbar = true;
+    });
+  }
 
   @Watch("$route")
   checkLandingPage() {
