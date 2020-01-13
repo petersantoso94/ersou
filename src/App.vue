@@ -88,6 +88,7 @@ export default class App extends Vue {
 
 	signOut() {
 		FBApi.FBLogout().then(() => {
+			this.drawer = false;
 			this.$router.replace({
 				name: "Landing"
 			});

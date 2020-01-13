@@ -17,7 +17,7 @@
 					<v-col cols="12">
 						<v-card>
 							<v-card-title>
-								Secondhand Items:
+								Ersou Items:
 								<v-spacer />
 								<v-text-field v-model="search" append-icon="search" single-line hide-details></v-text-field>
 							</v-card-title>
@@ -27,6 +27,7 @@
 								:items="selectedItems"
 								:items-per-page="5"
 								:search="search"
+								:loading="ersouDataLoading"
 								class="elevation-1"
 							></v-data-table>
 						</v-card>
@@ -56,6 +57,7 @@ import NewBuySale from "@/components/NewBuySell.vue";
 export default class Landing extends Vue {
 	items: Items[] = [];
 	search: string = "";
+	ersouDataLoading: boolean = false;
 	chosenTab: TransactionType = TransactionType.Sell;
 	headers: { [key: string]: string }[] = [
 		{ text: "Title", value: "title" },
@@ -65,6 +67,7 @@ export default class Landing extends Vue {
 	];
 	tabs: string[] = [TransactionType.Sell, TransactionType.Buy];
 	mounted() {
+		this.ersouDataLoading = true;
 		FBApi.FBItemsCollection().onSnapshot(data => {
 			if (!data) SystemAlert("Items collection empty");
 			const temp: Items[] = [];
@@ -80,6 +83,7 @@ export default class Landing extends Vue {
 				});
 			});
 			this.items = temp;
+			this.ersouDataLoading = false;
 		});
 	}
 

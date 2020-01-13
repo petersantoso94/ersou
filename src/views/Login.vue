@@ -20,7 +20,13 @@
 						@click:append="showPass = !showPass"
 						required
 					></v-text-field>
-					<v-btn :disabled="!regValid" color="success" class="mr-4" @click="validate">Login</v-btn>
+					<v-btn
+						:disabled="!regValid || loading"
+						:loading="loading"
+						color="success"
+						class="mr-4"
+						@click="validate"
+					>Login</v-btn>
 				</v-form>
 			</v-row>
 		</v-row>
@@ -43,6 +49,7 @@ export default class Login extends Vue {
 		form: HTMLFormElement;
 	};
 	@Action("User/fetchUser") private setUser!: any;
+	loading: boolean = false;
 	regValid: boolean = true;
 	showPass: boolean = false;
 	password: string = "";
@@ -65,11 +72,13 @@ export default class Login extends Vue {
 	}
 	validate() {
 		if (this.$refs.form.validate()) {
+			this.loading = true;
 			FirebaseAPI.FBLogin({
 				email: this.email,
 				password: this.password
 			})
 				.then(data => {
+					this.loading = false;
 					if (data) {
 						this.setUser(data);
 						this.$router.replace({ name: "Home" });
@@ -79,6 +88,9 @@ export default class Login extends Vue {
 					if (e.code === "auth/email-already-in-use")
 						this.rules.email = e.message;
 					else SystemAlert(e.message);
+				})
+				.finally(() => {
+					this.loading = false;
 				});
 		}
 	}
