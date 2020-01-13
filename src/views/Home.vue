@@ -4,10 +4,13 @@
 			<v-container>
 				<v-row>
 					<v-col cols="12">
-						<v-row justify="space-between">
-							<v-toolbar-title>Hi, {{user.data.email}}:</v-toolbar-title>
-							<v-btn @click="signOut" outlined color="red">logout</v-btn>
-						</v-row>
+						<v-tabs fixed-tabs background-color="indigo" dark>
+							<v-tab v-for="i in tabs" :key="i" :href="`#tab-${i}`" @click="chosenTab = i">{{ i }}</v-tab>
+
+							<v-tab-item v-for="i in tabs" :key="i" :value="'tab-' + i">
+								<NewBuySale :type="i" />
+							</v-tab-item>
+						</v-tabs>
 					</v-col>
 				</v-row>
 				<v-row>
@@ -21,7 +24,7 @@
 
 							<v-data-table
 								:headers="headers"
-								:items="items"
+								:items="selectedItems"
 								:items-per-page="5"
 								:search="search"
 								class="elevation-1"
@@ -36,29 +39,35 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 import FBApi from "@/api/firebase";
 import { SystemAlert } from "../utils/event-bus";
-import { State, Action, Getter, namespace } from "vuex-class";
 import { IUser } from "../models/interfaces/User";
 import { datetimeMixin } from "@/utils/helper";
-const userModule = namespace("User");
+import { Items } from "@/models/interfaces/Items";
+import { TransactionType } from "@/models/enum/common";
+import NewBuySale from "@/components/NewBuySell.vue";
 
-@Component({})
+@Component({
+	components: {
+		NewBuySale
+	}
+})
 export default class Landing extends Vue {
-	@userModule.State("User") user!: firebase.User;
-	items: { [key: string]: string }[] = [];
+	items: Items[] = [];
 	search: string = "";
+	chosenTab: TransactionType = TransactionType.Sell;
 	headers: { [key: string]: string }[] = [
 		{ text: "Title", value: "title" },
 		{ text: "Description", value: "desc" },
 		{ text: "Price", value: "price" },
 		{ text: "Posted at", value: "created" }
 	];
+	tabs: string[] = [TransactionType.Sell, TransactionType.Buy];
 	mounted() {
 		FBApi.FBItemsCollection().onSnapshot(data => {
 			if (!data) SystemAlert("Items collection empty");
-			const temp: { [key: string]: string }[] = [];
+			const temp: Items[] = [];
 			data.forEach(el => {
 				temp.push({
 					title: el.data().title,
@@ -66,18 +75,18 @@ export default class Landing extends Vue {
 					price: el.data().price,
 					created: datetimeMixin.filters.timestampToDateAndTime(
 						el.data().created.seconds
-					)
+					),
+					sell: el.data().sell
 				});
 			});
 			this.items = temp;
 		});
 	}
-	signOut() {
-		FBApi.FBLogout().then(() => {
-			this.$router.replace({
-				name: "Landing"
-			});
-		});
+
+	get selectedItems(): Items[] {
+		return this.items.filter(
+			el => el.sell !== (this.chosenTab === TransactionType.Sell)
+		);
 	}
 }
 </script>
