@@ -45,6 +45,8 @@
 			</v-btn>
 		</v-app-bar>
 		<v-content>
+			<v-alert type="error" v-if="showError">{{showError}}</v-alert>
+			<v-alert type="success" v-if="showSuccess">{{showSuccess}}</v-alert>
 			<router-view />
 			<v-snackbar v-model="snackbar" :timeout="2000">
 				{{ text }}
@@ -68,6 +70,8 @@ export default class App extends Vue {
 	drawer: boolean = false;
 	snackbar: boolean = false;
 	text: string = "";
+	showError: string = "";
+	showSuccess: string = "";
 	isLandingPage: boolean = true;
 	items: { [key: string]: string }[] = [
 		{ title: "Dashboard", icon: "mdi-view-dashboard", to: "/home" },
@@ -78,6 +82,18 @@ export default class App extends Vue {
 		EventBus.$on("system-alert", (msg: string) => {
 			this.text = msg;
 			this.snackbar = true;
+		});
+		EventBus.$on("show-error", (msg: string) => {
+			this.showError = msg;
+			setTimeout(() => {
+				this.showError = "";
+			}, 4000);
+		});
+		EventBus.$on("show-success", (msg: string) => {
+			this.showSuccess = msg;
+			setTimeout(() => {
+				this.showSuccess = "";
+			}, 4000);
 		});
 	}
 

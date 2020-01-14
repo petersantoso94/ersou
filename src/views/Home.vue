@@ -4,7 +4,7 @@
 			<v-container>
 				<v-row>
 					<v-col cols="12">
-						<v-tabs fixed-tabs background-color="indigo" dark>
+						<v-tabs fixed-tabs background-color="indigo" v-model="tabHref" dark>
 							<v-tab v-for="i in tabs" :key="i" :href="`#tab-${i}`" @click="chosenTab = i">{{ i }}</v-tab>
 							<v-tab-item v-for="i in tabs" :key="i" :value="'tab-' + i">
 								<component :is="i" />
@@ -40,11 +40,12 @@
 import Vue from "vue";
 import { Component, Watch } from "vue-property-decorator";
 import FBApi from "@/api/firebase";
-import { SystemAlert } from "../utils/event-bus";
+import EventBus, { SystemAlert } from "../utils/event-bus";
 import { IUser } from "../models/interfaces/User";
 import { datetimeMixin } from "@/utils/helper";
 import { Items } from "@/models/interfaces/Items";
-import { TransactionType } from "@/models/enum/common";
+import { TransactionType, QualityMeasurement } from "@/models/enum/common";
+import { arrConditions } from "@/utils/helper";
 import NewSelling from "@/containers/NewSelling.vue";
 import NewBuying from "@/containers/NewBuying.vue";
 
@@ -59,19 +60,30 @@ export default class Landing extends Vue {
 	search: string = "";
 	ersouDataLoading: boolean = false;
 	chosenTab: TransactionType = TransactionType.Sell;
+	tabHref: string = "tab-" + TransactionType.Sell;
 	headers: { [key: string]: string }[] = [
 		{ text: "Title", value: "title" },
 		{ text: "Description", value: "desc" },
 		{ text: "Price", value: "price" },
+		{ text: "Currency", value: "currency" },
+		{ text: "Address", value: "address" },
+		{ text: "Condition", value: "condition" },
 		{ text: "Posted at", value: "created" }
 	];
 	tabs: string[] = [TransactionType.Sell, TransactionType.Buy];
 	mounted() {
+		EventBus.$on("go-to-buy", () => {
+			this.tabHref = "tab-" + TransactionType.Buy;
+			this.chosenTab = TransactionType.Buy;
+		});
 		this.ersouDataLoading = true;
 		FBApi.FBItemsCollection().onSnapshot(data => {
 			if (!data) SystemAlert("Items collection empty");
 			const temp: Items[] = [];
 			data.forEach(el => {
+				const conditionStr =
+					arrConditions[el.data().condition] ||
+					QualityMeasurement.New;
 				temp.push({
 					title: el.data().title,
 					desc: el.data().description,
@@ -79,7 +91,10 @@ export default class Landing extends Vue {
 					created: datetimeMixin.filters.timestampToDateAndTime(
 						el.data().created.seconds
 					),
-					sell: el.data().sell
+					sell: el.data().sell,
+					currency: el.data().currency,
+					address: el.data().address,
+					condition: conditionStr
 				});
 			});
 			this.items = temp;

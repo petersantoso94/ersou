@@ -1,3 +1,5 @@
+import { QualityMeasurement } from '@/models/enum/common';
+
 export const datetimeMixin = {
     filters: {
         timestampToDate(timestamp: number) {
@@ -80,3 +82,12 @@ export const daysAgo = (day: number) => {
         .slice(0, 10)
         .replace(/-/g, '-');
 };
+
+export const arrConditions = [
+    QualityMeasurement.Broken,
+    QualityMeasurement.Poor,
+    QualityMeasurement.DailyUsed,
+    QualityMeasurement.RarelyUsed,
+    QualityMeasurement.AlmostLikeNew,
+    QualityMeasurement.New
+]
