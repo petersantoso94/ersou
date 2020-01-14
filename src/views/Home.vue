@@ -6,9 +6,8 @@
 					<v-col cols="12">
 						<v-tabs fixed-tabs background-color="indigo" dark>
 							<v-tab v-for="i in tabs" :key="i" :href="`#tab-${i}`" @click="chosenTab = i">{{ i }}</v-tab>
-
 							<v-tab-item v-for="i in tabs" :key="i" :value="'tab-' + i">
-								<NewBuySale :type="i" />
+								<component :is="i" />
 							</v-tab-item>
 						</v-tabs>
 					</v-col>
@@ -21,7 +20,6 @@
 								<v-spacer />
 								<v-text-field v-model="search" append-icon="search" single-line hide-details></v-text-field>
 							</v-card-title>
-
 							<v-data-table
 								:headers="headers"
 								:items="selectedItems"
@@ -47,11 +45,13 @@ import { IUser } from "../models/interfaces/User";
 import { datetimeMixin } from "@/utils/helper";
 import { Items } from "@/models/interfaces/Items";
 import { TransactionType } from "@/models/enum/common";
-import NewBuySale from "@/components/NewBuySell.vue";
+import NewSelling from "@/containers/NewSelling.vue";
+import NewBuying from "@/containers/NewBuying.vue";
 
 @Component({
 	components: {
-		NewBuySale
+		[TransactionType.Sell]: NewSelling,
+		[TransactionType.Buy]: NewBuying
 	}
 })
 export default class Landing extends Vue {
