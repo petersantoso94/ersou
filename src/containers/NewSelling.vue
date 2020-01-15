@@ -1,5 +1,5 @@
 <template>
-	<v-card flat tile>
+	<v-card raised tile class="px-1">
 		<v-container>
 			<v-form ref="form" v-model="sellValid">
 				<v-row>
@@ -11,10 +11,10 @@
 					<v-col cols="2">
 						<v-select :items="currencies" v-model="curr" :rules="[rules.required]" label="Currency"></v-select>
 					</v-col>
-					<v-col cols="5">
+					<v-col cols="3">
 						<v-text-field v-model="price" :rules="[rules.required]" label="Price" type="number"></v-text-field>
 					</v-col>
-					<v-col cols="5">
+					<v-col cols="7">
 						<v-text-field
 							type="search"
 							v-model="place"
@@ -24,38 +24,58 @@
 						></v-text-field>
 					</v-col>
 				</v-row>
-				<v-row class="mb-4">
-					<v-slider
-						v-model="condition"
-						:tick-labels="qualityLabels"
-						:max="qualityLabels.length-1"
-						:rules="[rules.required]"
-						step="1"
-						ticks="always"
-						:tick-size="qualityLabels.length"
-					>
-						<template v-slot:thumb-label="props">{{ qualityIcon[props.value] }}</template>
-					</v-slider>
-				</v-row>
 				<v-row>
-					<v-col cols="4">
-						<v-file-input
-							show-size
-							v-model="images"
-							:rules="imgRules"
-							ref="imagesRef"
-							:multiple="true"
-							@change="onImagesChange"
-							accept="image/png, image/jpeg, image/bmp"
-							prepend-icon="mdi-camera"
-							label="Picture"
-						></v-file-input>
+					<v-col cols="6">
+						<v-row>
+							<v-col cols="6">
+								<v-select
+									:items="qualityLabels"
+									v-model="condition"
+									:rules="[rules.required]"
+									label="Condition"
+								></v-select>
+							</v-col>
+							<v-col cols="6">
+								<v-file-input
+									show-size
+									v-model="images"
+									:rules="imgRules"
+									ref="imagesRef"
+									:multiple="true"
+									@change="onImagesChange"
+									accept="image/png, image/jpeg, image/bmp"
+									prepend-icon="mdi-camera"
+									label="Picture"
+								></v-file-input>
+							</v-col>
+						</v-row>
+						<v-row>
+							<v-textarea
+								outlined
+								name="input-7-4"
+								label="Description"
+								rows="5"
+								placeholder="Reason to sell, detailed condition, ..."
+								v-model="description"
+							></v-textarea>
+						</v-row>
 					</v-col>
-					<v-col cols="8">
-						<v-row v-if="imagesUrls.length > 0">
+					<v-col cols="6">
+						<v-carousel hide-delimiters v-if="imagesUrls.length > 0" height="250">
+							<v-carousel-item v-for="n in imagesUrls" :key="n" :contain="true">
+								<v-img :src="n" :lazy-src="n" aspect-ratio="0.5" max-height="250" class="grey lighten-2">
+									<template v-slot:placeholder>
+										<v-row class="fill-height ma-0" align="center" justify="center">
+											<v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+										</v-row>
+									</template>
+								</v-img>
+							</v-carousel-item>
+						</v-carousel>
+						<!-- <v-row v-if="imagesUrls.length > 0">
 							<v-col v-for="n in imagesUrls" :key="n" class="d-flex child-flex" cols="4">
 								<v-card flat tile class="d-flex">
-									<v-img :src="n" :lazy-src="n" aspect-ratio="1" class="grey lighten-2">
+									<v-img :src="n" :lazy-src="n" aspect-ratio="1" :contain="true" class="grey lighten-2">
 										<template v-slot:placeholder>
 											<v-row class="fill-height ma-0" align="center" justify="center">
 												<v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
@@ -64,20 +84,11 @@
 									</v-img>
 								</v-card>
 							</v-col>
-						</v-row>
+						</v-row>-->
 					</v-col>
 				</v-row>
-				<v-row>
-					<v-textarea
-						outlined
-						name="input-7-4"
-						label="Description"
-						rows="1"
-						placeholder="Reason to sell, detailed condition, ..."
-						v-model="description"
-					></v-textarea>
-				</v-row>
-				<v-row justify="end">
+
+				<v-row justify="end" class="mr-1">
 					<v-btn
 						tile
 						outlined
@@ -103,7 +114,7 @@ import Vue from "vue";
 import { Component, Watch, Prop } from "vue-property-decorator";
 import { IRule } from "@/models/interfaces/Common";
 import { TransactionType, QualityMeasurement } from "@/models/enum/common";
-import { arrConditions, resizeImage } from "@/utils/helper";
+import { arrConditions, resizeImage, brokenImg } from "@/utils/helper";
 import FB from "@/api/firebase";
 import { Items, ItemsOptions } from "../models/interfaces/Items";
 import * as firebase from "firebase/app";
@@ -125,11 +136,18 @@ export default class NewSelling extends Vue {
 	maxSize: number = 5000000;
 	errorMaxSize = "5 MB";
 	images: File[] = [];
-	imagesUrls: string[] = [];
+	imagesUrls: string[] = [brokenImg];
 	sellValid: boolean = true;
 	curr: string = "NTD";
 	currencies: string[] = ["USD", "NTD", "IDR"];
-	qualityLabels: string[] = arrConditions;
+	qualityLabels: { [key: string]: string | number }[] = [
+		{ value: 0, text: QualityMeasurement.Broken },
+		{ value: 1, text: QualityMeasurement.Poor },
+		{ value: 2, text: QualityMeasurement.DailyUsed },
+		{ value: 3, text: QualityMeasurement.RarelyUsed },
+		{ value: 4, text: QualityMeasurement.AlmostLikeNew },
+		{ value: 5, text: QualityMeasurement.New }
+	];
 	qualityIcon: string[] = ["0%", "20%", "40%", "60%", "80%", "100%"];
 	rules: IRule = {
 		required: (value: string) => !!value || "Required"
@@ -170,17 +188,18 @@ export default class NewSelling extends Vue {
 	}
 	onImagesChange(files: File[]) {
 		if (!this.$refs.imagesRef.validate()) {
-			this.imagesUrls = [];
+			this.imagesUrls = [brokenImg];
 			return;
 		}
 		if (files.length > 0) {
+			this.imagesUrls.pop();
 			files.some(file => {
 				resizeImage(file).then(dataurl => {
 					this.imagesUrls.push(dataurl);
 				});
 			});
 		} else {
-			this.imagesUrls = [];
+			this.imagesUrls = [brokenImg];
 		}
 	}
 	validate() {
