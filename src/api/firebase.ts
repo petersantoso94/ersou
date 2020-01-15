@@ -1,5 +1,5 @@
 import { IUser } from '@/models/interfaces/User';
-import { db } from "@/main"
+import { db, storageRef } from "@/main"
 import * as firebase from "firebase/app";
 import 'firebase/auth'
 import { Items, ItemsOptions } from '@/models/interfaces/Items';
@@ -20,5 +20,9 @@ export default {
     },
     async FBSetItemsDoc(payload: ItemsOptions): Promise<void> {
         return db.collection("items").doc().set(payload)
+    },
+    FBUploadImageToStorage(file: File): firebase.storage.UploadTask {
+        const metadata = { 'contentType': file.type }
+        return storageRef.child('images/' + Date.now() + "-" + file.name).put(file, metadata)
     }
 }

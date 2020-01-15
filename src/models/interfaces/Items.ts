@@ -18,6 +18,7 @@ export interface ItemsOptions {
     currency: string;
     address: string;
     condition: number;
+    images: string;
     created: firebase.firestore.Timestamp;
     sell: boolean;
 }

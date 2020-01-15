@@ -213,15 +213,28 @@ export default class NewSelling extends Vue {
 				currency: this.curr,
 				condition: this.condition,
 				created: firebase.firestore.Timestamp.fromDate(new Date()),
+				images: "",
 				sell: true
 			};
-			FB.FBSetItemsDoc(ItemsOption).then(() => {
-				this.loading = false;
-				EventBus.$emit(
-					"show-success",
-					"Succesfully added Selling Item"
-				);
-				EventBus.$emit("go-to-buy");
+			let imagesUrlString = "";
+			let imgUrlArr: string[] = [];
+			this.images.some(image => {
+				FB.FBUploadImageToStorage(image).then(snapshot => {
+					snapshot.ref.getDownloadURL().then(url => {
+						imgUrlArr.push(url);
+						if (imgUrlArr.length === this.images.length) {
+							ItemsOption.images = imgUrlArr.join(",");
+							FB.FBSetItemsDoc(ItemsOption).then(() => {
+								this.loading = false;
+								EventBus.$emit(
+									"show-success",
+									"Succesfully added Selling Item"
+								);
+								EventBus.$emit("go-to-buy");
+							});
+						}
+					});
+				});
 			});
 		}
 	}

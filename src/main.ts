@@ -6,6 +6,7 @@ import * as firebase from 'firebase/app';
 import 'firebase/analytics'
 import 'firebase/auth'
 import 'firebase/firestore'
+import 'firebase/storage'
 import store from "./store"
 
 Vue.config.productionTip = false
@@ -34,6 +35,7 @@ export const getCurrentUser = () => {
 };
 
 export const db = firebase.firestore()
+export const storageRef = firebase.storage().ref()
 
 new Vue({
   router,
