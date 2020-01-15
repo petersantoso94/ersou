@@ -38,10 +38,41 @@
 					</v-slider>
 				</v-row>
 				<v-row>
+					<v-col cols="4">
+						<v-file-input
+							show-size
+							v-model="images"
+							:rules="imgRules"
+							ref="imagesRef"
+							:multiple="true"
+							@change="onImagesChange"
+							accept="image/png, image/jpeg, image/bmp"
+							prepend-icon="mdi-camera"
+							label="Picture"
+						></v-file-input>
+					</v-col>
+					<v-col cols="8">
+						<v-row v-if="imagesUrls.length > 0">
+							<v-col v-for="n in imagesUrls" :key="n" class="d-flex child-flex" cols="4">
+								<v-card flat tile class="d-flex">
+									<v-img :src="n" :lazy-src="n" aspect-ratio="1" class="grey lighten-2">
+										<template v-slot:placeholder>
+											<v-row class="fill-height ma-0" align="center" justify="center">
+												<v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+											</v-row>
+										</template>
+									</v-img>
+								</v-card>
+							</v-col>
+						</v-row>
+					</v-col>
+				</v-row>
+				<v-row>
 					<v-textarea
 						outlined
 						name="input-7-4"
 						label="Description"
+						rows="1"
 						placeholder="Reason to sell, detailed condition, ..."
 						v-model="description"
 					></v-textarea>
@@ -72,7 +103,7 @@ import Vue from "vue";
 import { Component, Watch, Prop } from "vue-property-decorator";
 import { IRule } from "@/models/interfaces/Common";
 import { TransactionType, QualityMeasurement } from "@/models/enum/common";
-import { arrConditions } from "@/utils/helper";
+import { arrConditions, resizeImage } from "@/utils/helper";
 import FB from "@/api/firebase";
 import { Items, ItemsOptions } from "../models/interfaces/Items";
 import * as firebase from "firebase/app";
@@ -83,6 +114,7 @@ export default class NewSelling extends Vue {
 	$refs!: {
 		form: HTMLFormElement;
 		autocom: HTMLInputElement;
+		imagesRef: any;
 	};
 	description: string = "";
 	title: string = "";
@@ -90,6 +122,11 @@ export default class NewSelling extends Vue {
 	price: number = 0;
 	loading: boolean = false;
 	condition: number = 0;
+	maxSize: number = 5000000;
+	errorMaxSize = "5 MB";
+	images: File[] = [];
+	imagesUrls: string[] = [];
+	sellValid: boolean = true;
 	curr: string = "NTD";
 	currencies: string[] = ["USD", "NTD", "IDR"];
 	qualityLabels: string[] = arrConditions;
@@ -97,7 +134,22 @@ export default class NewSelling extends Vue {
 	rules: IRule = {
 		required: (value: string) => !!value || "Required"
 	};
-	sellValid: boolean = true;
+	imgRules = [
+		(values: File[]): boolean | string => {
+			if (values.length === 0) {
+				return true;
+			}
+			let size = 0;
+			values.some(value => {
+				size += value.size;
+			});
+			if (size >= this.maxSize) {
+				return `Photos size exceeds ${this.errorMaxSize}, please choose smaller one`;
+			}
+
+			return true;
+		}
+	];
 	mounted() {
 		const places = require("places.js");
 		const that = this;
@@ -115,6 +167,21 @@ export default class NewSelling extends Vue {
 		placesAutocomplete.on("clear", function() {
 			that.place = "";
 		});
+	}
+	onImagesChange(files: File[]) {
+		if (!this.$refs.imagesRef.validate()) {
+			this.imagesUrls = [];
+			return;
+		}
+		if (files.length > 0) {
+			files.some(file => {
+				resizeImage(file).then(dataurl => {
+					this.imagesUrls.push(dataurl);
+				});
+			});
+		} else {
+			this.imagesUrls = [];
+		}
 	}
 	validate() {
 		this.loading = true;

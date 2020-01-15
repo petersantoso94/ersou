@@ -91,3 +91,86 @@ export const arrConditions = [
     QualityMeasurement.AlmostLikeNew,
     QualityMeasurement.New
 ]
+
+export const brokenImg = require("@/assets/broken-img.png")
+
+//return blob and dataurl
+export const resizeImage = (files: Blob): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        const canvas = document.createElement("canvas");
+        img.onload = () => {
+            try {
+                const MAX_WIDTH = 800;
+                const MAX_HEIGHT = 600;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width *= MAX_HEIGHT / height;
+                        height = MAX_HEIGHT;
+                    }
+                }
+                canvas.width = width;
+                canvas.height = height;
+                let ctx = canvas.getContext("2d");
+                ctx!.drawImage(img, 0, 0, width, height);
+                let dataurl = canvas.toDataURL("image/png");
+                resolve(dataurl);
+            } catch (error) {
+                reject(error);
+            }
+        };
+        const fr = new FileReader();
+        fr.readAsDataURL(files);
+        fr.addEventListener("load", () => {
+            img.src = fr.result || brokenImg;
+        });
+    });
+}
+
+export const dataUrlToBlob = (dataurl: string) => {
+    // Split the base64 string in data and contentType
+    const block = dataurl.split(";");
+    // Get the content type of the image
+    const contentType = block[0].split(":")[1];
+    // get the real base64 content of the file
+    const realData = block[1].split(",")[1];
+    // Convert it to a blob to upload
+    const blob = b64toBlob(realData, contentType);
+    return blob;
+}
+
+const b64toBlob = (b64Data: string, contentType: string = "", sliceSize: number = 512) => {
+    contentType = contentType || "";
+    sliceSize = sliceSize || 512;
+
+    let byteCharacters = atob(b64Data);
+    let byteArrays = [];
+
+    for (
+        let offset = 0;
+        offset < byteCharacters.length;
+        offset += sliceSize
+    ) {
+        let slice = byteCharacters.slice(offset, offset + sliceSize);
+
+        let byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+            byteNumbers[i] = slice.charCodeAt(i);
+        }
+
+        let byteArray = new Uint8Array(byteNumbers);
+
+        byteArrays.push(byteArray);
+    }
+
+    let blob = new Blob(byteArrays, { type: contentType });
+    return blob;
+}
