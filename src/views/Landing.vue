@@ -84,6 +84,17 @@
           </v-flex>
         </v-layout>
       </section>
+      <v-footer class="blue darken-2">
+        <v-row>
+          <v-flex xs12 class="text-center">
+            <div class="white--text ml-3">
+              Made with
+              <v-icon class="red--text">favorite</v-icon>using
+              <a class="white--text" href="https://vuetifyjs.com" target="_blank">Vuetify</a>
+            </div>
+          </v-flex>
+        </v-row>
+      </v-footer>
     </v-content>
   </v-app>
 </template>
