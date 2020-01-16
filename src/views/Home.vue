@@ -25,6 +25,13 @@
 								:sort-desc="sortDesc"
 								hide-default-footer
 							>
+								<template v-slot:loading>
+									<v-row class="mx-2">
+										<v-col v-for="n in 4" :key="n" cols="12" sm="6" md="4" lg="3">
+											<v-skeleton-loader class="mx-auto" type="card"></v-skeleton-loader>
+										</v-col>
+									</v-row>
+								</template>
 								<template v-slot:header>
 									<v-toolbar dark color="blue darken-3" class="mb-1">
 										<v-text-field
