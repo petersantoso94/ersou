@@ -32,7 +32,7 @@
 				</v-list-item>
 			</v-list>
 		</v-navigation-drawer>
-		<v-app-bar app color="indigo" dark v-if="!this.isLandingPage">
+		<v-app-bar app color="blue darken-3" dark v-if="!this.isLandingPage">
 			<!-- TODO: uncomment if the drawer is ready -->
 			<!-- <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon> -->
 			<router-link to="/">

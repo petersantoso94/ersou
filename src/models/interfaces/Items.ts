@@ -2,13 +2,14 @@ import { QualityMeasurement } from '../enum/common';
 
 export interface Items {
     title: string;
-    desc: string;
+    description: string;
     price: number;
     currency: string;
     address: string;
     condition: QualityMeasurement;
     created: string;
     sell: boolean;
+    images: string[];
 }
 
 export interface ItemsOptions {

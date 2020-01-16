@@ -61,8 +61,14 @@
 						</v-row>
 					</v-col>
 					<v-col cols="6">
-						<v-carousel hide-delimiters v-if="imagesUrls.length > 0" height="250">
-							<v-carousel-item v-for="n in imagesUrls" :key="n" :contain="true">
+						<v-carousel
+							hide-delimiters
+							show-arrows-on-hover
+							:show-arrows="imagesUrls.length > 1"
+							v-if="imagesUrls.length > 0"
+							height="250"
+						>
+							<v-carousel-item v-for="(n,idx) in imagesUrls" :key="idx" :contain="true">
 								<v-img :src="n" :lazy-src="n" aspect-ratio="0.5" max-height="250" class="grey lighten-2">
 									<template v-slot:placeholder>
 										<v-row class="fill-height ma-0" align="center" justify="center">
@@ -148,9 +154,9 @@ export default class NewSelling extends Vue {
 		{ value: 4, text: QualityMeasurement.AlmostLikeNew },
 		{ value: 5, text: QualityMeasurement.New }
 	];
-	qualityIcon: string[] = ["0%", "20%", "40%", "60%", "80%", "100%"];
 	rules: IRule = {
-		required: (value: string) => !!value || "Required"
+		required: (value: string | number) =>
+			value === 0 || !!value || "Required"
 	};
 	imgRules = [
 		(values: File[]): boolean | string => {
@@ -202,6 +208,19 @@ export default class NewSelling extends Vue {
 			this.imagesUrls = [brokenImg];
 		}
 	}
+	resetValue() {
+		this.title = "";
+		this.place = "";
+		this.price = 0;
+		this.description = "";
+		this.curr = "NTD";
+		this.condition = 0;
+		this.images = [];
+		this.imagesUrls = [brokenImg];
+		this.sellValid = true;
+		this.$refs.form.reset();
+		this.$refs.form.resetValidation();
+	}
 	validate() {
 		this.loading = true;
 		if (this.$refs.form.validate()) {
@@ -231,6 +250,7 @@ export default class NewSelling extends Vue {
 									"Succesfully added Selling Item"
 								);
 								EventBus.$emit("go-to-buy");
+								this.resetValue();
 							});
 						}
 					});
