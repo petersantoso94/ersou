@@ -8,13 +8,13 @@
 					</v-col>
 				</v-row>
 				<v-row>
-					<v-col cols="12" md="6" lg="6">
+					<v-col cols="12" md="6" lg="2">
 						<v-select :items="currencies" v-model="curr" :rules="[rules.required]" label="Currency"></v-select>
 					</v-col>
-					<v-col cols="12" md="6" lg="6">
+					<v-col cols="12" md="6" lg="4">
 						<v-text-field v-model="price" :rules="[rules.required]" label="Price" type="number"></v-text-field>
 					</v-col>
-					<v-col cols="12">
+					<v-col cols="12" lg="6">
 						<v-text-field
 							type="search"
 							v-model="place"
