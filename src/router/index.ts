@@ -1,6 +1,6 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import Landing from "../views/Landing.vue";
+// import Landing from "../views/Landing.vue";
 import { getCurrentUser } from "@/main"
 import store from "@/store"
 
@@ -10,7 +10,7 @@ const routes = [
   {
     path: "/",
     name: "Landing",
-    component: Landing
+    component: () => import(/* webpackChunkName: "landing" */ "../views/Landing.vue" /* webpackPreload: true */)
   },
   {
     path: "/home",
@@ -18,7 +18,7 @@ const routes = [
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "home" */ "../views/Home.vue")
+    component: () => import(/* webpackChunkName: "home" */ "../views/Home.vue" /* webpackPreload: true */)
   },
   {
     path: "/about",
