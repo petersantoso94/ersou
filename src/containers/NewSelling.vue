@@ -8,13 +8,13 @@
 					</v-col>
 				</v-row>
 				<v-row>
-					<v-col cols="2">
+					<v-col cols="12" md="6" lg="6">
 						<v-select :items="currencies" v-model="curr" :rules="[rules.required]" label="Currency"></v-select>
 					</v-col>
-					<v-col cols="3">
+					<v-col cols="12" md="6" lg="6">
 						<v-text-field v-model="price" :rules="[rules.required]" label="Price" type="number"></v-text-field>
 					</v-col>
-					<v-col cols="7">
+					<v-col cols="12">
 						<v-text-field
 							type="search"
 							v-model="place"
@@ -25,7 +25,7 @@
 					</v-col>
 				</v-row>
 				<v-row>
-					<v-col cols="6">
+					<v-col cols="12" sm="6" md="6" lg="6">
 						<v-row>
 							<v-col cols="6">
 								<v-select
@@ -60,7 +60,7 @@
 							></v-textarea>
 						</v-row>
 					</v-col>
-					<v-col cols="6">
+					<v-col cols="12" sm="6" md="6" lg="6">
 						<v-carousel
 							hide-delimiters
 							show-arrows-on-hover
