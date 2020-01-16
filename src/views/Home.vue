@@ -175,9 +175,9 @@ import NewBuying from "@/containers/NewBuying.vue";
 })
 export default class Landing extends Vue {
 	items: Items[] = [];
-	itemsPerPageArray: number[] = [5, 10, 15];
+	itemsPerPageArray: number[] = [4, 8, 12];
 	page: number = 1;
-	itemsPerPage: number = 10;
+	itemsPerPage: number = 8;
 	search: string = "";
 	sortDesc: boolean = true;
 	ersouDataLoading: boolean = false;
