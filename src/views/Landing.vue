@@ -2,10 +2,10 @@
 	<v-app>
 		<v-toolbar dense class="white">
 			<v-toolbar-items>
-				<img :src="require('@/assets/ersou.png')" alt="Vuetify.js" height="100%" />
+				<img :src="require('@/assets/ersou.png')" alt="Vuetify.js" height="100%" class="mr-2" />
 			</v-toolbar-items>
-			<v-toolbar-title class="mx-0" v-text="title"></v-toolbar-title>
-			<p>Beta</p>
+			<v-toolbar-title class="mx-0 blue--text blue--darken-2" v-text="title"></v-toolbar-title>
+			<p class="blue--text text--darken-4">Beta</p>
 			<v-spacer></v-spacer>
 			<v-toolbar-items>
 				<v-list-item v-for="item in items" :key="item.title" :to="item.to" link>
@@ -107,7 +107,7 @@ import FBApi from "@/api/firebase";
 
 @Component({})
 export default class Landing extends Vue {
-	title: string = "Ersou";
+	title: string = "ersou";
 	items: { [key: string]: string }[] = [
 		{ title: "Buy / Sell", to: "/home" },
 		{ title: "Login", to: "/login" },
