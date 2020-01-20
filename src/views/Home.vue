@@ -69,7 +69,7 @@
 								<template v-slot:default="props">
 									<v-row class="mx-2">
 										<v-col v-for="(item,idx) in props.items" :key="idx" cols="12" sm="6" md="4" lg="3">
-											<v-card shaped outlined class="elevation-4">
+											<v-card tile outlined class="elevation-4">
 												<v-card-title class="subheading">{{ item.title }}</v-card-title>
 												<v-divider></v-divider>
 												<v-carousel
@@ -97,9 +97,9 @@
 												</v-carousel>
 												<v-row justify="end" class="mr-1">
 													<v-chip class="mr-2 my-1" color="blue darken-1" text-color="white" small>
-														<v-avatar left>
+														<!-- <v-avatar left>
 															<v-icon :color="colorObj[item.condition]">mdi-star</v-icon>
-														</v-avatar>
+														</v-avatar>-->
 														{{item.condition}}
 													</v-chip>
 													<v-chip class="mr-2 my-1" color="blue darken-1" text-color="white" small>
@@ -206,6 +206,10 @@ export default class Landing extends Vue {
 		EventBus.$on("go-to-buy", () => {
 			this.tabHref = "tab-" + TransactionType.Buy;
 			this.chosenTab = TransactionType.Buy;
+		});
+		EventBus.$on("go-to-sell", () => {
+			this.tabHref = "tab-" + TransactionType.Sell;
+			this.chosenTab = TransactionType.Sell;
 		});
 		this.ersouDataLoading = true;
 		FBApi.FBItemsCollection().onSnapshot(data => {
