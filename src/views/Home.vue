@@ -70,7 +70,13 @@
 									<v-row class="mx-2">
 										<v-col v-for="(item,idx) in props.items" :key="idx" cols="12" sm="6" md="4" lg="3">
 											<v-card tile outlined class="elevation-4">
-												<v-card-title class="subheading">{{ item.title }}</v-card-title>
+												<v-card-title class="subheading">
+													{{ item.title |limitTitle }}
+													<v-divider></v-divider>
+													<v-btn x-small fab dark color="teal" @click="showDetailHandler(item)">
+														<v-icon dark>mdi-format-list-bulleted-square</v-icon>
+													</v-btn>
+												</v-card-title>
 												<v-divider></v-divider>
 												<v-carousel
 													hide-delimiters
@@ -150,6 +156,9 @@
 					</v-col>
 				</v-row>
 			</v-container>
+			<v-dialog v-if="showDetail" v-model="showDetail" max-width="500">
+				<ItemDetail :detail="chosenItem" />
+			</v-dialog>
 		</v-app>
 	</div>
 </template>
@@ -160,26 +169,31 @@ import { Component, Watch } from "vue-property-decorator";
 import FBApi from "@/api/firebase";
 import EventBus, { SystemAlert } from "../utils/event-bus";
 import { IUser } from "../models/interfaces/User";
-import { datetimeMixin, brokenImg } from "@/utils/helper";
+import { datetimeMixin, brokenImg, titleMixin } from "@/utils/helper";
 import { Items } from "@/models/interfaces/Items";
 import { TransactionType, QualityMeasurement } from "@/models/enum/common";
 import { arrConditions } from "@/utils/helper";
 import NewSelling from "@/containers/NewSelling.vue";
 import NewBuying from "@/containers/NewBuying.vue";
+import ItemDetail from "@/components/ItemDetail.vue";
 
 @Component({
 	components: {
 		[TransactionType.Sell]: NewSelling,
-		[TransactionType.Buy]: NewBuying
-	}
+		[TransactionType.Buy]: NewBuying,
+		ItemDetail
+	},
+	mixins: [titleMixin]
 })
 export default class Landing extends Vue {
 	items: Items[] = [];
 	itemsPerPageArray: number[] = [4, 8, 12];
 	page: number = 1;
+	chosenItem!: Items;
 	itemsPerPage: number = 8;
 	search: string = "";
 	sortDesc: boolean = true;
+	showDetail: boolean = false;
 	ersouDataLoading: boolean = false;
 	chosenTab: TransactionType = TransactionType.Sell;
 	tabHref: string = "tab-" + TransactionType.Sell;
@@ -248,6 +262,10 @@ export default class Landing extends Vue {
 	}
 	updateItemsPerPage(number: number) {
 		this.itemsPerPage = number;
+	}
+	showDetailHandler(item: Items) {
+		this.chosenItem = item;
+		this.showDetail = true;
 	}
 	get numberOfPages(): number {
 		return Math.ceil(this.selectedItems.length / this.itemsPerPage);

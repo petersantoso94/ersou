@@ -51,6 +51,14 @@ export const datetimeMixin = {
     },
 };
 
+export const titleMixin = {
+    filters: {
+        limitTitle(title: string) {
+            return title.substr(0, 20) + (title.length > 20 ? "..." : "")
+        }
+    }
+}
+
 /**
  * 站台timezone
  * for filter timestamp to string
