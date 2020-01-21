@@ -73,7 +73,7 @@
 												<v-card-title class="subheading">
 													{{ item.title |limitTitle }}
 													<v-divider></v-divider>
-													<v-btn x-small fab dark color="teal" @click="showDetailHandler(item)">
+													<v-btn x-small fab dark color="blue" @click="showDetailHandler(item)">
 														<v-icon dark>mdi-format-list-bulleted-square</v-icon>
 													</v-btn>
 												</v-card-title>

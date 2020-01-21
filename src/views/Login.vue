@@ -81,7 +81,7 @@ export default class Login extends Vue {
 					this.loading = false;
 					if (data) {
 						this.setUser(data);
-						this.$router.replace({ name: "Home" });
+						this.$router.replace({ name: "Dashboard" });
 					}
 				})
 				.catch(e => {
