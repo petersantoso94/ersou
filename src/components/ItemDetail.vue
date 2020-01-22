@@ -3,19 +3,12 @@
 		<v-card-title class="headline">{{detail.title}}</v-card-title>
 		<v-carousel
 			hide-delimiters
-			show-arrows-on-hover
 			:show-arrows="detail.images.length > 1"
 			v-if="detail.images.length > 0"
-			height="250"
+			height="400"
 		>
-			<v-carousel-item v-for="(n,idx) in detail.images" :key="idx" :contain="true">
-				<v-img :src="n" :lazy-src="n" aspect-ratio="0.5" max-height="250" class="grey lighten-2">
-					<template v-slot:placeholder>
-						<v-row class="fill-height ma-0" align="center" justify="center">
-							<v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
-						</v-row>
-					</template>
-				</v-img>
+			<v-carousel-item v-for="(n,idx) in detail.images" :key="idx">
+				<zoom-image :n="n" :width="'350px'" :height="'400px'" />
 			</v-carousel-item>
 		</v-carousel>
 	</v-card>
@@ -23,10 +16,32 @@
 
 <script>
 import EventBus from "../utils/event-bus";
+import ZoomImage from "@/components/ZoomImage";
 export default {
-	props: ["detail"]
+	props: ["detail"],
+	components: {
+		ZoomImage
+	}
 };
 </script>
 
-<style>
+<style scoped>
+.zoom-on-hover {
+	position: relative;
+	overflow: hidden;
+}
+.zoom-on-hover .normal {
+	width: 100%;
+}
+.zoom-on-hover .zoom {
+	position: absolute;
+	opacity: 0;
+	transform-origin: top left;
+}
+.zoom-on-hover.zoomed .zoom {
+	opacity: 1;
+}
+.zoom-on-hover.zoomed .normal {
+	opacity: 0;
+}
 </style>

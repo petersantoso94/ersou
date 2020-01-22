@@ -85,13 +85,14 @@
 													v-if="item.images.length > 0"
 													height="250"
 												>
-													<v-carousel-item v-for="(n,idx) in item.images" :key="idx" :contain="true">
+													<v-carousel-item v-for="(n,idx) in item.images" :key="idx">
 														<v-img
 															:src="n"
 															:lazy-src="n"
 															aspect-ratio="0.5"
 															max-height="250"
 															class="grey lighten-2"
+															:contain="true"
 														>
 															<template v-slot:placeholder>
 																<v-row class="fill-height ma-0" align="center" justify="center">
