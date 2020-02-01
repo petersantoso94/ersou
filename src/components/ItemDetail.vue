@@ -9,7 +9,7 @@
       </v-btn>
     </v-card-title>
     <v-card-subtitle>{{detail.created | moment("from", "now")}}</v-card-subtitle>
-    <v-container>
+    <v-container style="margin-top:-20px;">
       <v-row dense>
         <v-col cols="12" md="8">
           <v-carousel
