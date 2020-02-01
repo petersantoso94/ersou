@@ -37,6 +37,8 @@ export const getCurrentUser = () => {
 export const db = firebase.firestore()
 export const storageRef = firebase.storage().ref()
 
+Vue.use(require('vue-moment'))
+
 new Vue({
   router,
   vuetify,
