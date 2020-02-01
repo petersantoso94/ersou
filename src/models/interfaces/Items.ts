@@ -10,6 +10,7 @@ export interface Items {
     created: string;
     sell: boolean;
     images: string[];
+    owner: string;
 }
 
 export interface ItemsOptions {
@@ -22,4 +23,5 @@ export interface ItemsOptions {
     images: string;
     created: firebase.firestore.Timestamp;
     sell: boolean;
+    owner: string;
 }

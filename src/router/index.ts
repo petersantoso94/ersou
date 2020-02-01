@@ -47,12 +47,12 @@ const router = new VueRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-  if (to.name === "Home" && (!store.getters["User/User"].loggedIn || !await getCurrentUser())) {
+  if (to.name === "Dashboard" && (!store.getters["User/User"].loggedIn || !await getCurrentUser())) {
     router.replace({ name: "Login" })
     return
   }
   if (to.name === "Login" && (store.getters["User/User"].loggedIn || await getCurrentUser())) {
-    router.replace({ name: "Home" })
+    router.replace({ name: "Dashboard" })
     return
   }
   next();
