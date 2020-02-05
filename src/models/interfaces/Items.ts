@@ -1,6 +1,7 @@
 import { QualityMeasurement } from '../enum/common';
 
 export interface Items {
+    id: string;
     title: string;
     description: string;
     price: number;
@@ -11,6 +12,7 @@ export interface Items {
     sell: boolean;
     images: string[];
     owner: string;
+    messages: string;
 }
 
 export interface ItemsOptions {
