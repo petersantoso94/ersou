@@ -70,11 +70,14 @@
 									<v-row class="mx-2">
 										<v-col v-for="(item,idx) in props.items" :key="idx" cols="12" sm="6" md="4" lg="3">
 											<v-card tile outlined class="elevation-4">
-												<v-card-title class="subheading">
+												<v-card-title class="subheading" style="font-size:99%">
 													{{ item.title |limitTitle }}
 													<v-divider></v-divider>
 													<v-btn x-small fab dark color="blue" @click="showDetailHandler(item.id)">
 														<v-icon dark>mdi-format-list-bulleted-square</v-icon>
+													</v-btn>
+													<v-btn x-small fab dark color="blue" @click="showMessageHandler(item.id)" class="mx-1">
+														<v-icon dark>mdi-message</v-icon>
 													</v-btn>
 												</v-card-title>
 												<v-divider></v-divider>
@@ -196,6 +199,7 @@ export default class Landing extends Vue {
 	itemsPerPageArray: number[] = [4, 8, 12];
 	page: number = 1;
 	chosenItem!: Items[];
+	chosenId: string = "";
 	itemsPerPage: number = 8;
 	search: string = "";
 	sortDesc: boolean = true;
@@ -267,6 +271,12 @@ export default class Landing extends Vue {
 			this.ersouDataLoading = false;
 		});
 	}
+
+	@Watch("items")
+	onItemsChange() {
+		this.chosenItem = this.items.filter(el => el.id === this.chosenId);
+	}
+
 	nextPage() {
 		if (this.page + 1 <= this.numberOfPages) this.page += 1;
 	}
@@ -277,8 +287,14 @@ export default class Landing extends Vue {
 		this.itemsPerPage = number;
 	}
 	showDetailHandler(id: string) {
+		this.chosenId = id;
 		this.chosenItem = this.items.filter(el => el.id === id);
 		this.showDetail = true;
+	}
+	showMessageHandler(id: string) {
+		this.chosenId = id;
+		this.chosenItem = this.items.filter(el => el.id === id);
+		this.showMessage = true;
 	}
 	get numberOfPages(): number {
 		return Math.ceil(this.selectedItems.length / this.itemsPerPage);

@@ -6,7 +6,7 @@
 				<v-col cols="4">
 					<v-list subheader v-if="messageFromArr">
 						<v-subheader>Recent chat</v-subheader>
-						<v-list-item v-for="pm in messageFromArr" :key="pm">
+						<v-list-item v-for="pm in messageFromArr" :key="pm" @click="openChatDialogs(pm)">
 							<v-list-item-avatar>
 								<v-img src="https://cdn.vuetifyjs.com/images/lists/1.jpg"></v-img>
 							</v-list-item-avatar>
@@ -16,13 +16,20 @@
 							</v-list-item-content>
 
 							<v-list-item-icon>
-								<v-icon :color="messageFromObj[pm].active ? 'deep-purple accent-4' : 'grey'">chat_bubble</v-icon>
+								<v-icon :color="messageFromObj[pm] ? 'blue darken-1' : 'grey'">chat_bubble</v-icon>
 							</v-list-item-icon>
 						</v-list-item>
 					</v-list>
 				</v-col>
 				<v-col cols="8">
-					<v-container fluid>
+					<v-container v-if="loadingChat">
+						<v-row class="mx-1">
+							<v-col v-for="n in 4" :key="n" cols="12">
+								<v-skeleton-loader class="mx-auto" type="list-item-two-line"></v-skeleton-loader>
+							</v-col>
+						</v-row>
+					</v-container>
+					<v-container fluid v-if="messageList.length>0">
 						<v-row class="mx-1 chat-container" dense>
 							<v-col
 								cols="12"
@@ -40,7 +47,11 @@
 							</v-col>
 						</v-row>
 						<v-row class="mx-1" dense>
-							<v-text-field placeholder="Type your message here" v-on:keyup.enter="sendMessage"></v-text-field>
+							<v-text-field
+								placeholder="Type your message here"
+								v-on:keyup.enter="sendMessage"
+								v-model="content"
+							></v-text-field>
 						</v-row>
 					</v-container>
 				</v-col>
@@ -56,27 +67,74 @@ import { Items } from "../models/interfaces/Items";
 import { datetimeMixin } from "@/utils/helper";
 import FB from "@/api/firebase";
 import { SystemAlert } from "../utils/event-bus";
-import { Messages } from "@/models/interfaces/Message";
+import { Messages, MessageOptions } from "@/models/interfaces/Message";
 import store from "../store";
 @Component({})
 export default class Message extends Vue {
 	@Prop(Object) readonly detail!: Items;
 	messageList: Messages[] = [];
-	messageFromObj: { [name: string]: { [active: string]: boolean } } = {};
-	messageFromArr: string[] = [];
+	messageFromObj: {
+		[name: string]: boolean;
+	} = {};
+	loadingChat: boolean = false;
 	detailMessages: string = "";
+	content: string = "";
 	currentUser: string = store.getters["User/User"].data.email;
+
+	get messageFromArr() {
+		let mes: string[] = [];
+		if (this.detail.owner !== this.currentUser) {
+			mes.push(this.detail.owner);
+		} else {
+			this.detail.messages.split(",,").forEach(el => {
+				if (el !== this.currentUser) {
+					mes.push(el);
+				}
+			});
+		}
+		return mes;
+	}
 
 	updateMessagesInItemsCollection() {
 		FB.FBUpdateItemMessage(this.detail.id, () =>
 			SystemAlert("Document does not exist!")
 		);
 	}
-	scrollToEnd() {
-		this.$nextTick(() => {
-			const container = this.$el.querySelector(".chat-container");
-			container!.scrollTop = container!.scrollHeight;
+	openChatDialogs(pm: string) {
+		this.loadingChat = true;
+		const newMesObj = { ...this.messageFromObj };
+		Object.keys(newMesObj).forEach(key => {
+			newMesObj[key] = false;
 		});
+		newMesObj[pm] = true;
+		this.messageFromObj = newMesObj;
+		const user =
+			this.detail.owner !== this.currentUser ? this.currentUser : pm;
+		FB.FBChatsCollection(this.detail.id, user).onSnapshot(data => {
+			if (!data) SystemAlert("Items collection empty");
+			let msg: Messages[] = [];
+			data.forEach(el => {
+				const temp = {
+					id: el.id,
+					created: datetimeMixin.filters.timestampToDateAndTime(
+						el.data().created.seconds
+					),
+					from: el.data().from,
+					content: el.data().content
+				};
+				msg.push(temp);
+			});
+			this.messageList = msg;
+			this.scrollToEnd();
+			this.loadingChat = false;
+		});
+	}
+	scrollToEnd() {
+		if (this.messageList.length > 0)
+			this.$nextTick(() => {
+				const container = this.$el.querySelector(".chat-container");
+				container!.scrollTop = container!.scrollHeight;
+			});
 	}
 	sendMessage() {
 		if (
@@ -90,34 +148,23 @@ export default class Message extends Vue {
 			this.detailMessages = this.currentUser;
 			this.updateMessagesInItemsCollection();
 		}
+		FB.FBSetChatPerItemDoc(this.content, this.detail.id).then(() => {});
+		this.content = "";
+	}
+	setChatOwner() {
+		this.messageFromObj = {};
+		if (this.detail.owner !== this.currentUser) {
+			this.messageFromObj[this.detail.owner] = false;
+		} else {
+			this.detail.messages.split(",,").forEach(el => {
+				if (el !== this.currentUser) {
+					this.messageFromObj[el] = false;
+				}
+			});
+		}
 	}
 	mounted() {
-		if (this.detail.owner !== this.currentUser) {
-			// if not the owner, get only its own message with the owner
-			FB.FBChatsCollection(this.detail.id, this.currentUser).onSnapshot(
-				data => {
-					if (!data) SystemAlert("Items collection empty");
-					let msg: Messages[] = [];
-					data.forEach(el => {
-						const temp = {
-							id: el.id,
-							created: datetimeMixin.filters.timestampToDateAndTime(
-								el.data().created.seconds
-							),
-							from: el.data().from,
-							content: el.data().content
-						};
-						msg.push(temp);
-					});
-					this.messageList = msg;
-					this.scrollToEnd();
-				}
-			);
-			this.messageFromObj[this.detail.owner] = { ["active"]: false };
-			this.messageFromArr.push(this.detail.owner);
-		} else {
-			//if its the owner, get all the collection list
-		}
+		this.setChatOwner();
 	}
 }
 </script>

@@ -5,3 +5,9 @@ export interface Messages {
     from: string;
     content: string;
 }
+
+export interface MessageOptions {
+    from: string;
+    created: firebase.firestore.Timestamp;
+    content: string;
+}

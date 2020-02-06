@@ -4,6 +4,7 @@ import * as firebase from "firebase/app";
 import 'firebase/auth'
 import { Items, ItemsOptions } from '@/models/interfaces/Items';
 import store from '@/store';
+import { MessageOptions } from '@/models/interfaces/Message';
 
 
 export default {
@@ -24,6 +25,15 @@ export default {
     },
     async FBSetItemsDoc(payload: ItemsOptions): Promise<void> {
         return db.collection("items").doc().set(payload)
+    },
+    async FBSetChatPerItemDoc(content: string, docPath: string): Promise<void> {
+        const currentUser: string = store.getters["User/User"].data.email;
+        const msgOpt: MessageOptions = {
+            from: currentUser,
+            created: firebase.firestore.Timestamp.fromDate(new Date()),
+            content
+        }
+        return db.collection("items").doc(docPath).collection(currentUser).doc().set(msgOpt)
     },
     async FBUpdateItemMessage(docPath: string, failCallback: () => void): Promise<void> {
         const dbRef = db.collection("items").doc(docPath)
