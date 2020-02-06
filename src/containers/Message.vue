@@ -1,49 +1,51 @@
 <template>
 	<v-card>
 		<v-card-title>New Chat</v-card-title>
-		<v-row dense>
-			<v-col cols="4">
-				<v-list subheader v-if="messageFromArr">
-					<v-subheader>Recent chat</v-subheader>
-					<v-list-item v-for="pm in messageFromArr" :key="pm">
-						<v-list-item-avatar>
-							<v-img src="https://cdn.vuetifyjs.com/images/lists/1.jpg"></v-img>
-						</v-list-item-avatar>
+		<v-container>
+			<v-row dense>
+				<v-col cols="4">
+					<v-list subheader v-if="messageFromArr">
+						<v-subheader>Recent chat</v-subheader>
+						<v-list-item v-for="pm in messageFromArr" :key="pm">
+							<v-list-item-avatar>
+								<v-img src="https://cdn.vuetifyjs.com/images/lists/1.jpg"></v-img>
+							</v-list-item-avatar>
 
-						<v-list-item-content>
-							<v-list-item-title v-text="pm"></v-list-item-title>
-						</v-list-item-content>
+							<v-list-item-content>
+								<v-list-item-title v-text="pm"></v-list-item-title>
+							</v-list-item-content>
 
-						<v-list-item-icon>
-							<v-icon :color="messageFromObj[pm].active ? 'deep-purple accent-4' : 'grey'">chat_bubble</v-icon>
-						</v-list-item-icon>
-					</v-list-item>
-				</v-list>
-			</v-col>
-			<v-col cols="8">
-				<v-container>
-					<v-row class="mx-1" dense>
-						<v-col
-							cols="12"
-							v-for="chat in messageList"
-							:key="chat.id"
-							:class="chat.from === currentUser?'text-right':'text-left'"
-						>
-							<p class="chat-owner">{{chat.from}}</p>
+							<v-list-item-icon>
+								<v-icon :color="messageFromObj[pm].active ? 'deep-purple accent-4' : 'grey'">chat_bubble</v-icon>
+							</v-list-item-icon>
+						</v-list-item>
+					</v-list>
+				</v-col>
+				<v-col cols="8">
+					<v-container fluid>
+						<v-row class="mx-1 chat-container" dense>
+							<v-col
+								cols="12"
+								v-for="chat in messageList"
+								:key="chat.id"
+								:class="chat.from === currentUser?'text-right':'text-left'"
+							>
+								<p class="chat-owner">{{chat.from}}</p>
 
-							<v-chip class="text-wrap chat-content">
-								{{chat.content}}
-								<br />
-							</v-chip>
-							<p class="chat-time">{{chat.created | moment("from", "now")}}</p>
-						</v-col>
-					</v-row>
-					<v-row class="mx-1" dense>
-						<v-text-field placeholder="Type your message here" v-on:keyup.enter="sendMessage"></v-text-field>
-					</v-row>
-				</v-container>
-			</v-col>
-		</v-row>
+								<v-chip class="text-wrap chat-content">
+									{{chat.content}}
+									<br />
+								</v-chip>
+								<p class="chat-time">{{chat.created | moment("from", "now")}}</p>
+							</v-col>
+						</v-row>
+						<v-row class="mx-1" dense>
+							<v-text-field placeholder="Type your message here" v-on:keyup.enter="sendMessage"></v-text-field>
+						</v-row>
+					</v-container>
+				</v-col>
+			</v-row>
+		</v-container>
 	</v-card>
 </template>
 
@@ -69,6 +71,10 @@ export default class Message extends Vue {
 		FB.FBUpdateItemMessage(this.detail.id, () =>
 			SystemAlert("Document does not exist!")
 		);
+	}
+	updated() {
+		const container = this.$el.querySelector(".chat-container");
+		container!.scrollTop = container!.scrollHeight;
 	}
 	sendMessage() {
 		if (
@@ -126,5 +132,9 @@ export default class Message extends Vue {
 .chat-time {
 	font-size: 70%;
 	margin-bottom: -1px !important;
+}
+.chat-container {
+	max-height: 40vh;
+	overflow: auto;
 }
 </style>
