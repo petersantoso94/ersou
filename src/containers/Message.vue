@@ -72,9 +72,11 @@ export default class Message extends Vue {
 			SystemAlert("Document does not exist!")
 		);
 	}
-	updated() {
-		const container = this.$el.querySelector(".chat-container");
-		container!.scrollTop = container!.scrollHeight;
+	scrollToEnd() {
+		this.$nextTick(() => {
+			const container = this.$el.querySelector(".chat-container");
+			container!.scrollTop = container!.scrollHeight;
+		});
 	}
 	sendMessage() {
 		if (
@@ -108,6 +110,7 @@ export default class Message extends Vue {
 						msg.push(temp);
 					});
 					this.messageList = msg;
+					this.scrollToEnd();
 				}
 			);
 			this.messageFromObj[this.detail.owner] = { ["active"]: false };
