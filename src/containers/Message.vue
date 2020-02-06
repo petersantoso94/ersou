@@ -29,7 +29,7 @@
 							</v-col>
 						</v-row>
 					</v-container>
-					<v-container fluid v-if="messageList.length>0">
+					<v-container fluid v-if="messageList.length>0 && !loadingChat">
 						<v-row class="mx-1 chat-container" dense>
 							<v-col
 								cols="12"
