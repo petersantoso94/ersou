@@ -1,7 +1,7 @@
 
 export interface Messages {
     id: string;
-    created: firebase.firestore.Timestamp;
+    created: string;
     from: string;
     content: string;
 }

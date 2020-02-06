@@ -20,7 +20,7 @@ export default {
         return db.collection('items').orderBy('created')
     },
     FBChatsCollection(docPath: string, currentUser: string): firebase.firestore.Query<firebase.firestore.DocumentData> {
-        return db.collection('items').doc(docPath).collection(currentUser).orderBy('created', 'desc')
+        return db.collection('items').doc(docPath).collection(currentUser).orderBy('created')
     },
     async FBSetItemsDoc(payload: ItemsOptions): Promise<void> {
         return db.collection("items").doc().set(payload)
