@@ -154,7 +154,8 @@ export default class Message extends Vue {
 	setChatOwner() {
 		this.messageFromObj = {};
 		if (this.detail.owner !== this.currentUser) {
-			this.messageFromObj[this.detail.owner] = false;
+			this.messageFromObj[this.detail.owner] = true;
+			this.openChatDialogs(this.detail.owner);
 		} else {
 			this.detail.messages.split(",,").forEach(el => {
 				if (el !== this.currentUser) {
