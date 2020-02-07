@@ -29,7 +29,7 @@
 							</v-col>
 						</v-row>
 					</v-container>
-					<v-container fluid v-if="messageList.length>0 && !loadingChat">
+					<v-container fluid v-show="selectedChatOwner && !loadingChat">
 						<v-row class="mx-1 chat-container" dense>
 							<v-col
 								cols="12"
@@ -80,6 +80,7 @@ export default class Message extends Vue {
 	detailMessages: string = "";
 	content: string = "";
 	currentUser: string = store.getters["User/User"].data.email;
+	selectedChatOwner: string = "";
 
 	get messageFromArr() {
 		let mes: string[] = [];
@@ -102,6 +103,8 @@ export default class Message extends Vue {
 	}
 	openChatDialogs(pm: string) {
 		this.loadingChat = true;
+		this.selectedChatOwner =
+			this.detail.owner !== this.currentUser ? this.currentUser : pm;
 		const newMesObj = { ...this.messageFromObj };
 		Object.keys(newMesObj).forEach(key => {
 			newMesObj[key] = false;
@@ -111,7 +114,10 @@ export default class Message extends Vue {
 		const user =
 			this.detail.owner !== this.currentUser ? this.currentUser : pm;
 		FB.FBChatsCollection(this.detail.id, user).onSnapshot(data => {
-			if (!data) SystemAlert("Items collection empty");
+			if (data.empty) {
+				SystemAlert("Chats empty, start new chat");
+				//start a new chat, build new collection
+			}
 			let msg: Messages[] = [];
 			data.forEach(el => {
 				const temp = {
@@ -148,7 +154,12 @@ export default class Message extends Vue {
 			this.detailMessages = this.currentUser;
 			this.updateMessagesInItemsCollection();
 		}
-		FB.FBSetChatPerItemDoc(this.content, this.detail.id).then(() => {});
+		console.log(this.selectedChatOwner);
+		FB.FBSetChatPerItemDoc(
+			this.content,
+			this.detail.id,
+			this.selectedChatOwner
+		).then(() => {});
 		this.content = "";
 	}
 	setChatOwner() {
@@ -166,6 +177,7 @@ export default class Message extends Vue {
 	}
 	mounted() {
 		this.setChatOwner();
+		console.log(this.detail);
 	}
 }
 </script>
