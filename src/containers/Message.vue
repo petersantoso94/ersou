@@ -154,7 +154,6 @@ export default class Message extends Vue {
 			this.detailMessages = this.currentUser;
 			this.updateMessagesInItemsCollection();
 		}
-		console.log(this.selectedChatOwner);
 		FB.FBSetChatPerItemDoc(
 			this.content,
 			this.detail.id,
@@ -177,7 +176,6 @@ export default class Message extends Vue {
 	}
 	mounted() {
 		this.setChatOwner();
-		console.log(this.detail);
 	}
 }
 </script>
