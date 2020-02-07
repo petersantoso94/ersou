@@ -197,7 +197,8 @@ export default class Message extends Vue {
 	margin-bottom: -1px !important;
 }
 .chat-container {
-	max-height: 40vh;
+	margin-top: 50px;
+	max-height: 50vh;
 	overflow: auto;
 }
 </style>
