@@ -4,11 +4,11 @@
 			<v-list dense nav class="py-0">
 				<v-list-item two-line>
 					<v-list-item-avatar>
-						<img src="https://randomuser.me/api/portraits/men/81.jpg" />
+						<img :src="user.data.photoURL || 'https://randomuser.me/api/portraits/men/81.jpg'" />
 					</v-list-item-avatar>
 
 					<v-list-item-content v-if="user.data">
-						<v-list-item-title>{{user.data.email}}</v-list-item-title>
+						<v-list-item-title>{{user.data.displayName || user.data.email}}</v-list-item-title>
 						<v-list-item-subtitle>
 							<v-btn x-small @click="signOut" outlined color="red">logout</v-btn>
 						</v-list-item-subtitle>
@@ -75,6 +75,7 @@ export default class App extends Vue {
 	isLandingPage: boolean = true;
 	items: { [key: string]: string }[] = [
 		{ title: "Dashboard", icon: "mdi-view-dashboard", to: "/dashboard" },
+		{ title: "Profile", icon: "mdi-account", to: "/profile" },
 		{ title: "About", icon: "mdi-help-box", to: "/about" }
 	];
 

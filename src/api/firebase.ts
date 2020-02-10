@@ -17,6 +17,13 @@ export default {
     async FBLogout(): Promise<void> {
         return await firebase.auth().signOut()
     },
+    FBUpdateUserInfo(displayName: string, photoUrl: string = "https://randomuser.me/api/portraits/men/81.jpg"): Promise<void> {
+        const user = firebase.auth().currentUser
+        return user!.updateProfile({
+            displayName: displayName,
+            photoURL: photoUrl
+        })
+    },
     FBItemsCollection(): firebase.firestore.Query<firebase.firestore.DocumentData> {
         return db.collection('items').orderBy('created')
     },
