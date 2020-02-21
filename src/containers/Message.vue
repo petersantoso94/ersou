@@ -86,9 +86,11 @@ export default class Message extends Vue {
 	currentUser: string = store.getters["User/User"].data.email;
 	selectedChatOwner: string = "";
 	selectedPM: string = "";
+	updatedData: boolean = false;
 
 	get messageFromArr() {
 		let mes: string[] = [];
+		this.updatedData = true;
 		if (this.detail.owner !== this.currentUser) {
 			mes.push(this.detail.owner);
 			this.detail.messages.split(",,").forEach(el => {
@@ -116,9 +118,12 @@ export default class Message extends Vue {
 	}
 
 	readChat(pm: string) {
-		FB.FBReadMessage(this.detail.id, pm, () =>
-			SystemAlert("Document does not exist!")
-		);
+		if (this.updatedData) {
+			FB.FBReadMessage(this.detail.id, pm, () =>
+				SystemAlert("Document does not exist!")
+			);
+			this.updatedData = false;
+		}
 	}
 	openChatDialogs(pm: string) {
 		this.loadingChat = true;
