@@ -67,6 +67,29 @@ export default {
             )
         })
     },
+    async FBReadMessage(docPath: string, pm: string, failCallback: () => void): Promise<void> {
+        const dbRef = db.collection("items").doc(docPath)
+        return db.runTransaction(function (transaction: firebase.firestore.Transaction) {
+            return transaction.get(dbRef).then(
+                (doc) => {
+                    if (!doc.exists) {
+                        failCallback()
+
+                    }
+
+                    let messages = doc.data()!.messages || "";
+                    let msgArr = messages.split(",,")
+
+                    messages = msgArr.map((msg: string) => {
+                        const msgFrom = msg.split(":")[0]
+                        if (msgFrom === pm) return msgFrom + ":0"
+                        else return msg
+                    }).join(",,")
+                    transaction.update(dbRef, { messages });
+                }
+            )
+        })
+    },
     FBUploadImageToStorage(file: File): firebase.storage.UploadTask {
         const metadata = { 'contentType': file.type }
         return storageRef.child('images/' + Date.now() + "-" + file.name).put(file, metadata)

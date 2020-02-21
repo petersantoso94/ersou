@@ -16,7 +16,9 @@
 							</v-list-item-content>
 
 							<v-list-item-icon>
-								<v-icon :color="messageFromObj[pm] ? 'blue darken-1' : 'grey'">chat_bubble</v-icon>
+								<v-badge :color="unreadMessage[pm] && unreadMessage[pm]>0?'red':''" dot>
+									<v-icon :color="messageFromObj[pm] ? 'blue darken-1' : 'grey'">chat_bubble</v-icon>
+								</v-badge>
 							</v-list-item-icon>
 						</v-list-item>
 					</v-list>
@@ -77,6 +79,7 @@ export default class Message extends Vue {
 		[name: string]: boolean;
 	} = {};
 	loadingChat: boolean = false;
+	unreadMessage: { [email: string]: string } = {};
 	detailMessages: string = "";
 	content: string = "";
 	currentUser: string = store.getters["User/User"].data.email;
@@ -88,8 +91,11 @@ export default class Message extends Vue {
 			mes.push(this.detail.owner);
 		} else {
 			this.detail.messages.split(",,").forEach(el => {
-				if (el !== this.currentUser) {
-					mes.push(el);
+				const userEmail = el.split(":")[0];
+				const notReadMessage = el.split(":")[1];
+				if (userEmail !== this.currentUser) {
+					mes.push(userEmail);
+					this.unreadMessage[userEmail] = notReadMessage;
 				}
 			});
 		}
@@ -113,6 +119,10 @@ export default class Message extends Vue {
 		this.messageFromObj = newMesObj;
 		const user =
 			this.detail.owner !== this.currentUser ? this.currentUser : pm;
+
+		FB.FBReadMessage(this.detail.id, pm, () =>
+			SystemAlert("Document does not exist!")
+		);
 		FB.FBChatsCollection(this.detail.id, user).onSnapshot(data => {
 			if (data.empty) {
 				SystemAlert("Chats empty, start new chat");
