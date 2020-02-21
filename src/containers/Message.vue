@@ -52,6 +52,7 @@
 							<v-text-field
 								placeholder="Type your message here"
 								v-on:keyup.enter="sendMessage"
+								@click="readChat(selectedPM)"
 								v-model="content"
 							></v-text-field>
 						</v-row>
@@ -84,11 +85,17 @@ export default class Message extends Vue {
 	content: string = "";
 	currentUser: string = store.getters["User/User"].data.email;
 	selectedChatOwner: string = "";
+	selectedPM: string = "";
 
 	get messageFromArr() {
 		let mes: string[] = [];
 		if (this.detail.owner !== this.currentUser) {
 			mes.push(this.detail.owner);
+			this.detail.messages.split(",,").forEach(el => {
+				const userEmail = el.split(":")[0];
+				const notReadMessage = el.split(":")[1];
+				this.unreadMessage[userEmail] = notReadMessage;
+			});
 		} else {
 			this.detail.messages.split(",,").forEach(el => {
 				const userEmail = el.split(":")[0];
@@ -107,6 +114,12 @@ export default class Message extends Vue {
 			SystemAlert("Document does not exist!")
 		);
 	}
+
+	readChat(pm: string) {
+		FB.FBReadMessage(this.detail.id, pm, () =>
+			SystemAlert("Document does not exist!")
+		);
+	}
 	openChatDialogs(pm: string) {
 		this.loadingChat = true;
 		this.selectedChatOwner =
@@ -119,10 +132,8 @@ export default class Message extends Vue {
 		this.messageFromObj = newMesObj;
 		const user =
 			this.detail.owner !== this.currentUser ? this.currentUser : pm;
-
-		FB.FBReadMessage(this.detail.id, pm, () =>
-			SystemAlert("Document does not exist!")
-		);
+		this.selectedPM = pm;
+		this.readChat(pm);
 		FB.FBChatsCollection(this.detail.id, user).onSnapshot(data => {
 			if (data.empty) {
 				SystemAlert("Chats empty, start new chat");

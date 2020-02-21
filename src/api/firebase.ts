@@ -33,13 +33,36 @@ export default {
     async FBSetItemsDoc(payload: ItemsOptions): Promise<void> {
         return db.collection("items").doc().set(payload)
     },
-    async FBSetChatPerItemDoc(content: string, docPath: string, replyTo: string): Promise<void> {
+    async FBSetChatPerItemDoc(content: string, docPath: string, replyTo: string, failCallback: () => void = () => { }): Promise<void> {
         const currentUser: string = store.getters["User/User"].data.email;
         const msgOpt: MessageOptions = {
             from: currentUser,
             created: firebase.firestore.Timestamp.fromDate(new Date()),
             content
         }
+
+        // update the not-read yet message
+        const dbRef = db.collection("items").doc(docPath)
+        db.runTransaction(function (transaction: firebase.firestore.Transaction) {
+            return transaction.get(dbRef).then(
+                (doc) => {
+                    if (!doc.exists) {
+                        failCallback()
+
+                    }
+
+                    let messages = doc.data()!.messages || "";
+                    let msgArr = messages.split(",,")
+
+                    messages = msgArr.map((msg: string) => {
+                        const msgFrom = msg.split(":")[0]
+                        if (msgFrom === currentUser) return msgFrom + ":1"
+                        else return msg
+                    }).join(",,")
+                    transaction.update(dbRef, { messages });
+                }
+            )
+        })
         return db.collection("items").doc(docPath).collection(replyTo).doc().set(msgOpt)
     },
     async FBUpdateItemMessage(docPath: string, failCallback: () => void): Promise<void> {
@@ -60,7 +83,7 @@ export default {
                         )
                     ) {
                         messages +=
-                            (messages !== "" ? ",," : "") + currentUser;
+                            (messages !== "" ? ",," : "") + currentUser + ":1";
                     }
                     transaction.update(dbRef, { messages });
                 }
