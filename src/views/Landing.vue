@@ -26,11 +26,11 @@
 						<h1
 							class="white--text mb-2 display-1 text-xs-center"
 							style="font-weight: 900; text-shadow: 3px 2px #000000"
-						>The social network for second hand items</h1>
+						>Buy and sell platform for second hand items</h1>
 						<div
 							class="white--text subheading mb-3 text-xs-center"
 							style="font-weight: 900; text-shadow: 2px 2px #000000"
-						>Get your best deal, fast response</div>
+						>Get your best deals, fast response</div>
 						<v-btn class="blue lighten-2 mt-5" dark large href="/register">Get Started</v-btn>
 					</v-layout>
 				</v-parallax>
