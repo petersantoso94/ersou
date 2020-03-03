@@ -26,11 +26,11 @@
 						<h1
 							class="white--text mb-2 display-1 text-xs-center"
 							style="font-weight: 900; text-shadow: 3px 2px #000000"
-						>The social network for epic content</h1>
+						>The social network for second hand items</h1>
 						<div
 							class="white--text subheading mb-3 text-xs-center"
 							style="font-weight: 900; text-shadow: 2px 2px #000000"
-						>Unlesh your creativity without limitations</div>
+						>Get your best deal, fast response</div>
 						<v-btn class="blue lighten-2 mt-5" dark large href="/register">Get Started</v-btn>
 					</v-layout>
 				</v-parallax>
@@ -39,7 +39,7 @@
 				<v-layout column wrap class="my-5" align-center>
 					<v-flex xs12 sm4 class="my-3">
 						<div class="text-xs-center">
-							<h2 class="headline">The best way to share your amazing stuff</h2>
+							<h2 class="headline">The best way to share your stuff</h2>
 							<span class="subheading">No more restrictions, no more limits</span>
 						</div>
 					</v-flex>
@@ -76,7 +76,7 @@
 										<v-card-title primary-title class="layout justify-center">
 											<div class="headline text-xs-center">Create new connections</div>
 										</v-card-title>
-										<v-card-text>Imagine if you can directly speak with the world's population. Don't you think it would be easier to find nice people to interact with? Endorfine is both local and global and help you to connect without limitations with people from your city, your state and your universe!</v-card-text>
+										<v-card-text>Imagine if you can directly speak with the world's population. Don't you think it would be easier to find nice people to interact with? Ersou is both local and global and help you to connect without limitations with people from your city, your state and your universe!</v-card-text>
 									</v-card>
 								</v-flex>
 							</v-layout>
