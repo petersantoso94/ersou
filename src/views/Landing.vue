@@ -111,8 +111,8 @@ export default class Landing extends Vue {
 	items: { [key: string]: string }[] = [
 		{ title: "Buy / Sell", to: "/dashboard" },
 		{ title: "Login", to: "/login" },
-		{ title: "Register", to: "/register" },
-		{ title: "About", to: "/about" }
+		{ title: "Register", to: "/register" }
+		// { title: "About", to: "/about" }
 	];
 }
 </script>

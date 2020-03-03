@@ -75,8 +75,8 @@ export default class App extends Vue {
 	isLandingPage: boolean = true;
 	items: { [key: string]: string }[] = [
 		{ title: "Dashboard", icon: "mdi-view-dashboard", to: "/dashboard" },
-		{ title: "Profile", icon: "mdi-account", to: "/profile" },
-		{ title: "About", icon: "mdi-help-box", to: "/about" }
+		{ title: "Profile", icon: "mdi-account", to: "/profile" }
+		// { title: "About", icon: "mdi-help-box", to: "/about" }
 	];
 
 	mounted() {
