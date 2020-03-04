@@ -234,7 +234,7 @@ export default class NewSelling extends Vue {
         images: "",
         sell: true,
         owner: this.currentUser,
-        messages: this.currentUser + ":0,,"
+        messages: this.currentUser + ":0"
       };
       let imagesUrlString = "";
       let imgUrlArr: string[] = [];

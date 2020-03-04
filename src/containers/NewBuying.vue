@@ -152,7 +152,7 @@ export default class NewBuying extends Vue {
         images: "",
         sell: false,
         owner: this.currentUser,
-        messages: this.currentUser + ":0,,"
+        messages: this.currentUser + ":0"
       };
       FB.FBSetItemsDoc(ItemsOption).then(() => {
         this.loading = false;

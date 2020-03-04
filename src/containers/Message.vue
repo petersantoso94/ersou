@@ -4,7 +4,7 @@
     <v-container>
       <v-row dense>
         <v-col cols="4">
-          <v-list subheader v-if="messageFromArr">
+          <v-list subheader v-if="messageFromArr && messageFromArr.length>0">
             <v-subheader>Recent chat</v-subheader>
             <v-list-item v-for="pm in messageFromArr" :key="pm" @click="openChatDialogs(pm)">
               <v-list-item-avatar>
@@ -89,9 +89,9 @@ export default class Message extends Vue {
   updatedData: boolean = false;
 
   get messageFromArr() {
-    let mes: string[] = [];
+    let mes: string[] | undefined = [];
     this.updatedData = true;
-    if (this.detail.messages)
+    if (this.detail.messages) {
       if (this.detail.owner !== this.currentUser) {
         mes.push(this.detail.owner);
         this.detail.messages.split(",,").forEach(el => {
@@ -104,11 +104,14 @@ export default class Message extends Vue {
           const userEmail = el.split(":")[0];
           const notReadMessage = el.split(":")[1];
           if (userEmail !== this.currentUser) {
-            mes.push(userEmail);
+            mes!.push(userEmail);
             this.unreadMessage[userEmail] = notReadMessage;
           }
         });
       }
+    } else {
+      mes = undefined;
+    }
     return mes;
   }
 
