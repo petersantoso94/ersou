@@ -36,7 +36,7 @@
 			<!-- TODO: uncomment if the drawer is ready -->
 			<!-- <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon> -->
 			<router-link to="/">
-				<v-img :src="require('@/assets/ersou.png')" max-width="80" class="mr-3"></v-img>
+				<v-img :src="require('@/assets/ersou.gif')" max-width="80" class="mr-3"></v-img>
 			</router-link>
 			<v-toolbar-title>{{ $route.name }}</v-toolbar-title>
 			<v-spacer></v-spacer>
