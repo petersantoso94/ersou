@@ -26,4 +26,5 @@ export interface ItemsOptions {
     created: firebase.firestore.Timestamp;
     sell: boolean;
     owner: string;
+    messages: string;
 }
