@@ -13,6 +13,7 @@ export interface Items {
     images: string[];
     owner: string;
     messages: string;
+    status: boolean;
 }
 
 export interface ItemsOptions {
@@ -26,5 +27,6 @@ export interface ItemsOptions {
     created: firebase.firestore.Timestamp;
     sell: boolean;
     owner: string;
+    status: boolean;
     messages: string;
 }

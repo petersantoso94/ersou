@@ -151,13 +151,14 @@ export default class NewBuying extends Vue {
         created: firebase.firestore.Timestamp.fromDate(new Date()),
         images: "",
         sell: false,
+        status: true,
         owner: this.currentUser,
         messages: this.currentUser + ":0"
       };
       FB.FBSetItemsDoc(ItemsOption).then(() => {
         this.loading = false;
-        EventBus.$emit("show-success", "Succesfully added Selling Item");
-        EventBus.$emit("go-to-sell");
+        EventBus.$emit("show-success", "Successfully added Buying Item");
+        EventBus.$emit("go-to-mylist");
         this.resetValue();
       });
     }

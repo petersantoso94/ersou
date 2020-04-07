@@ -233,6 +233,7 @@ export default class NewSelling extends Vue {
         created: firebase.firestore.Timestamp.fromDate(new Date()),
         images: "",
         sell: true,
+        status:true,
         owner: this.currentUser,
         messages: this.currentUser + ":0"
       };
@@ -248,9 +249,9 @@ export default class NewSelling extends Vue {
                 this.loading = false;
                 EventBus.$emit(
                   "show-success",
-                  "Succesfully added Selling Item"
+                  "Successfully added Selling Item"
                 );
-                EventBus.$emit("go-to-buy");
+                EventBus.$emit("go-to-mylist");
                 this.resetValue();
               });
             }
