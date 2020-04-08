@@ -109,7 +109,6 @@ export default class Message extends Vue {
           }
         });
       }
-      console.log(this.unreadMessage);
     } else {
       mes = undefined;
     }

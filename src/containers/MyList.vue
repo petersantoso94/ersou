@@ -135,7 +135,6 @@
         }
 
         deleteItem(item: Items) {
-            console.log('deleting', item)
         }
 
         getColor(item: Items) {
