@@ -30,3 +30,15 @@ export interface ItemsOptions {
     status: boolean;
     messages: string;
 }
+
+export interface Fields{
+    field:string;
+    newVal:string|boolean|number;
+}
+
+export interface UpdateFieldOptions {
+    id:string;
+    fields:Fields[];
+    successCallback:()=>void;
+    failCallback:()=>void;
+}

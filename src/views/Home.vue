@@ -190,7 +190,7 @@
     import EventBus, {SystemAlert} from "../utils/event-bus";
     import {IUser} from "../models/interfaces/User";
     import {datetimeMixin, brokenImg, titleMixin} from "@/utils/helper";
-    import {Items} from "@/models/interfaces/Items";
+    import {Items, UpdateFieldOptions} from "@/models/interfaces/Items";
     import {TransactionType, QualityMeasurement} from "@/models/enum/common";
     import {arrConditions} from "@/utils/helper";
     import NewSelling from "@/containers/NewSelling.vue";
@@ -256,6 +256,12 @@
             });
             EventBus.$on("show-message", (id: string) => {
                 this.showMessageHandler(id);
+            });
+            EventBus.$on("update-fields", (opt: UpdateFieldOptions) => {
+                FBApi.FBUpdateItemsDetail(opt.failCallback, opt).then(() => {
+                    EventBus.$emit("show-success", "Successfully Edit Item Status");
+                    opt.successCallback();
+                });
             });
             this.ersouDataLoading = true;
             FBApi.FBItemsCollection().onSnapshot(data => {

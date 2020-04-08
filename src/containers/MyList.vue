@@ -23,9 +23,9 @@
                                     <v-icon dark>mdi-message</v-icon>
                                 </v-badge>
                             </v-btn>
-                            <v-btn x-small fab dark color="red"
-                                   @click="deleteItem(item)" class="mr-2">
-                                <v-icon dark>mdi-delete</v-icon>
+                            <v-btn x-small fab dark :color="item.status?'red':'green'"
+                                   @click="openEditDialog(item)" class="mr-2">
+                                <v-icon dark>{{item.status?'mdi-delete':'mdi-check'}}</v-icon>
                             </v-btn>
                         </template>
                         <template slot="no-data">
@@ -88,28 +88,59 @@
                 </v-col>
             </v-row>
         </v-container>
+        <v-dialog
+                v-model="dialog"
+                max-width="290"
+        >
+            <v-card>
+                <v-card-title class="headline">Edit Confirmation</v-card-title>
+                <v-card-text>{{textDialog}}</v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+
+                    <v-btn
+                            color="green darken-1"
+                            text
+                            @click="dialog = false"
+                    >
+                        Cancel
+                    </v-btn>
+
+                    <v-btn
+                            color="green darken-1"
+                            text
+                            @click="deleteItem()"
+                    >
+                        Save
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <v-overlay :value="loading" style="z-index: 9999">
+            <v-progress-circular indeterminate size="70"></v-progress-circular>
+        </v-overlay>
     </v-card>
 </template>
 
 <script lang="ts">
     import Vue from "vue";
-    import {Component, Watch, Prop} from "vue-property-decorator";
-    import {Items} from "@/models/interfaces/Items";
-    import FBApi from "@/api/firebase";
-    import EventBus from "@/utils/event-bus";
+    import {Component, Prop} from "vue-property-decorator";
+    import {Fields, Items, UpdateFieldOptions} from "@/models/interfaces/Items";
+    import EventBus, {SystemAlert} from "@/utils/event-bus";
     import store from "@/store";
-    import {TransactionType} from "@/models/enum/common";
 
     @Component({})
     export default class MyList extends Vue {
         @Prop(Array) readonly items!: Items[];
         selectedItem: Items[] = [];
-        isSelling: boolean = true;
         itemsPerPageArray: number[] = [10, 20, 50];
         itemsPerPage: number = 10;
         page: number = 1;
         loading: boolean = false;
         search: string = "";
+        textDialog: string = "";
+        dialog: boolean = false;
+        selectedEditItem!: Items;
         currentUser: string = store.getters["User/User"].data.email;
         itemHeaders = [
             {
@@ -134,7 +165,28 @@
             EventBus.$emit('show-message', item.id)
         }
 
-        deleteItem(item: Items) {
+        openEditDialog(item: Items) {
+            this.textDialog = `Are you sure want to change the item status to ${this.getRevertStatusString(item)}?`;
+            this.dialog = true;
+            this.selectedEditItem = item;
+        }
+
+        deleteItem() {
+            this.loading = true;
+            let options: UpdateFieldOptions = {
+                id: this.selectedEditItem.id,
+                fields: [{field: 'status', newVal: !this.selectedEditItem.status}],
+                successCallback: () => {
+                    this.loading = false;
+                    this.dialog = false;
+                },
+                failCallback: () => {
+                    SystemAlert("Item not found")
+                    this.loading = false;
+                    this.dialog = false;
+                }
+            }
+            EventBus.$emit('update-fields', options)
         }
 
         getColor(item: Items) {
@@ -143,6 +195,10 @@
 
         getStatusString(item: Items) {
             return item.sell ? (item.status ? 'SELLING' : 'SOLD') : (item.status ? 'BUYING' : 'BOUGHT');
+        }
+
+        getRevertStatusString(item: Items) {
+            return item.sell ? (!item.status ? 'SELLING' : 'SOLD') : (!item.status ? 'BUYING' : 'BOUGHT');
         }
 
         getIsMessageUnread(item: Items): boolean {

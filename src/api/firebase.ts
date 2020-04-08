@@ -2,7 +2,7 @@ import { IUser } from '@/models/interfaces/User';
 import { db, storageRef } from "@/main"
 import * as firebase from "firebase/app";
 import 'firebase/auth'
-import { Items, ItemsOptions } from '@/models/interfaces/Items';
+import {Fields, Items, ItemsOptions, UpdateFieldOptions} from '@/models/interfaces/Items';
 import store from '@/store';
 import { MessageOptions } from '@/models/interfaces/Message';
 
@@ -90,6 +90,30 @@ export default {
             )
         })
     },
+    async FBUpdateItemsDetail(failCallback: () => void, option: UpdateFieldOptions) : Promise<void>{
+        const dbRef = db.collection("items").doc(option.id);
+        const currentUser: string = store.getters["User/User"].data.email;
+        return db.runTransaction(function (transaction: firebase.firestore.Transaction) {
+            return transaction.get(dbRef).then(
+                (doc) => {
+                    if (!doc.exists) {
+                        failCallback()
+
+                    }
+                    let owner = doc.data()!.owner || "";
+                    if(!owner || owner !== currentUser){
+                        failCallback()
+                    }
+
+                    option.fields.forEach((obj)=>{
+                        transaction.update(dbRef, { [obj.field]: obj.newVal });
+                    });
+
+
+                }
+            )
+        })
+    },
     async FBReadMessage(docPath: string, pm: string, failCallback: () => void): Promise<void> {
         const dbRef = db.collection("items").doc(docPath)
         return db.runTransaction(function (transaction: firebase.firestore.Transaction) {
@@ -114,7 +138,7 @@ export default {
         })
     },
     FBUploadImageToStorage(file: File): firebase.storage.UploadTask {
-        const metadata = { 'contentType': file.type }
+        const metadata = { 'contentType': file.type };
         return storageRef.child('images/' + Date.now() + "-" + file.name).put(file, metadata)
     }
 }
