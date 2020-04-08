@@ -16,7 +16,7 @@
               </v-list-item-content>
 
               <v-list-item-icon>
-                <v-badge :color="unreadMessage[pm] && unreadMessage[pm]>0?'red':''" dot>
+                <v-badge :color="unreadMessage[pm] && +unreadMessage[pm]>0?'red':''" dot>
                   <v-icon :color="messageFromObj[pm] ? 'blue darken-1' : 'grey'">chat_bubble</v-icon>
                 </v-badge>
               </v-list-item-icon>
@@ -109,6 +109,7 @@ export default class Message extends Vue {
           }
         });
       }
+      console.log(this.unreadMessage);
     } else {
       mes = undefined;
     }

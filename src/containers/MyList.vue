@@ -16,6 +16,18 @@
                         <template v-slot:item.sell="{ item }">
                             <v-chip :color="getColor(item)" dark>{{ getStatusString(item) }}</v-chip>
                         </template>
+                        <template v-slot:item.actions="{ item }">
+                            <v-btn x-small fab dark color="blue"
+                                   @click="openMessage(item)" class="mr-2">
+                                <v-badge :color="getIsMessageUnread(item)?'red':''" dot>
+                                    <v-icon dark>mdi-message</v-icon>
+                                </v-badge>
+                            </v-btn>
+                            <v-btn x-small fab dark color="red"
+                                   @click="deleteItem(item)" class="mr-2">
+                                <v-icon dark>mdi-delete</v-icon>
+                            </v-btn>
+                        </template>
                         <template slot="no-data">
                             <div></div>
                         </template>
@@ -83,15 +95,14 @@
     import Vue from "vue";
     import {Component, Watch, Prop} from "vue-property-decorator";
     import {Items} from "@/models/interfaces/Items";
-    import {QualityMeasurement, TransactionType} from "@/models/enum/common";
     import FBApi from "@/api/firebase";
-    import {SystemAlert} from "@/utils/event-bus";
-    import {arrConditions, brokenImg, datetimeMixin} from "@/utils/helper";
+    import EventBus from "@/utils/event-bus";
     import store from "@/store";
+    import {TransactionType} from "@/models/enum/common";
 
     @Component({})
     export default class MyList extends Vue {
-        items: Items[] = [];
+        @Prop(Array) readonly items!: Items[];
         selectedItem: Items[] = [];
         isSelling: boolean = true;
         itemsPerPageArray: number[] = [10, 20, 50];
@@ -100,66 +111,51 @@
         loading: boolean = false;
         search: string = "";
         currentUser: string = store.getters["User/User"].data.email;
-        itemHeaders= [
+        itemHeaders = [
             {
                 text: 'Your Item',
                 align: 'start',
                 value: 'title',
-            },{
+            }, {
                 text: 'Description',
                 align: 'start',
                 value: 'description',
             },
-            { text: 'Currency', value: 'currency' },
-            { text: 'Price', value: 'price' },
-            { text: 'Address', value: 'address' },
-            { text: 'Condition', value: 'condition' },
-            { text: 'Status', value: 'sell' },
+            {text: 'Currency', value: 'currency'},
+            {text: 'Price', value: 'price'},
+            {text: 'Address', value: 'address'},
+            {text: 'Condition', value: 'condition'},
+            {text: 'Status', value: 'sell'},
+            {text: 'Actions', value: 'actions', sortable: false},
         ];
 
-        mounted() {
-            FBApi.FBItemsCollection().onSnapshot(data => {
-                if (!data) SystemAlert("Items collection empty");
-                const temp: Items[] = [];
-                data.forEach(el => {
-                    const conditionStr =
-                        arrConditions[el.data().condition] ||
-                        QualityMeasurement.New;
-                    const imgArr: string[] = el.data().images
-                        ? el.data().images.split(",")
-                        : [brokenImg];
 
-                    if(el.data().owner === this.currentUser) {
-                        temp.push({
-                            id: el.id,
-                            title: el.data().title,
-                            messages: el.data().messages,
-                            description: el.data().description,
-                            price: el.data().price,
-                            created: datetimeMixin.filters.timestampToDateAndTime(
-                                el.data().created.seconds
-                            ),
-                            sell: el.data().sell,
-                            currency: el.data().currency,
-                            address: el.data().address,
-                            condition: conditionStr,
-                            images: imgArr,
-                            owner: el.data().owner,
-                            status: el.data().status
-                        });
-                    }
-                });
-                this.items = temp;
-                this.loading = false;
-            });
+        openMessage(item: Items) {
+            EventBus.$emit('show-message', item.id)
         }
 
-        getColor(item: Items){
+        deleteItem(item: Items) {
+            console.log('deleting', item)
+        }
+
+        getColor(item: Items) {
             return item.status ? 'green' : 'red'
         }
 
-        getStatusString(item: Items){
-            return  item.sell ? (item.status ? 'SELLING' : 'SOLD') :(item.status ?'BUYING':'BOUGHT');
+        getStatusString(item: Items) {
+            return item.sell ? (item.status ? 'SELLING' : 'SOLD') : (item.status ? 'BUYING' : 'BOUGHT');
+        }
+
+        getIsMessageUnread(item: Items): boolean {
+            let isUnread: boolean = false;
+            item.messages.split(",,").forEach(el => {
+                const userEmail = el.split(":")[0];
+                const notReadMessage = el.split(":")[1];
+                if (notReadMessage && +notReadMessage > 0 && userEmail !== this.currentUser) {
+                    isUnread = true;
+                }
+            });
+            return isUnread
         }
 
         nextPage() {
@@ -175,7 +171,9 @@
         }
 
         get selectedItems(): Items[] {
-            return this.items;
+            return this.items.filter(
+                el => el.owner === this.currentUser
+            );
         }
     }
 </script>

@@ -5,9 +5,11 @@
                 <v-row>
                     <v-col cols="12">
                         <v-tabs fixed-tabs dark background-color="blue darken-3" v-model="tabHref">
-                            <v-tab v-for="i in tabs" :key="i.component" :href="`#tab-${i.component}`" @click="chosenTab = i.component">{{ i.displayName }}</v-tab>
+                            <v-tab v-for="i in tabs" :key="i.component" :href="`#tab-${i.component}`"
+                                   @click="chosenTab = i.component">{{ i.displayName }}
+                            </v-tab>
                             <v-tab-item v-for="i in tabs" :key="i.component" :value="'tab-' + i.component">
-                                <component :is="i.component"/>
+                                <component :is="i.component" :items="items"/>
                             </v-tab-item>
                         </v-tabs>
                     </v-col>
@@ -172,10 +174,10 @@
                 </v-row>
             </v-container>
             <v-dialog v-if="showDetail" v-model="showDetail" class="pa-1" max-width="800px">
-                <ItemDetail :detail="chosenItem[0]" :closeDialog="()=>showDetail=false"/>
+                <ItemDetail :detail="chosenItem" :closeDialog="()=>showDetail=false"/>
             </v-dialog>
             <v-dialog v-if="showMessage" v-model="showMessage" class="pa-1" max-width="800px">
-                <Message :detail="chosenItem[0]" :closeDialog="()=>showMessage=false"/>
+                <Message :detail="chosenItem" :closeDialog="()=>showMessage=false"/>
             </v-dialog>
         </v-app>
     </div>
@@ -212,7 +214,7 @@
         items: Items[] = [];
         itemsPerPageArray: number[] = [4, 8, 12];
         page: number = 1;
-        chosenItem!: Items[];
+        chosenItem!: Items;
         chosenId: string = "";
         itemsPerPage: number = 8;
         search: string = "";
@@ -242,15 +244,18 @@
             [QualityMeasurement.AlmostLikeNew]: "lime",
             [QualityMeasurement.New]: "green"
         };
-        tabs: any[] = [{component: TransactionType.Sell, displayName:TransactionType.Sell},
-			{component: TransactionType.Buy, displayName:TransactionType.Buy}, {component: "MyList", displayName:"My Lists"}];
+        tabs: any[] = [{component: TransactionType.Sell, displayName: TransactionType.Sell},
+            {component: TransactionType.Buy, displayName: TransactionType.Buy}, {
+                component: "MyList",
+                displayName: "My Lists"
+            }];
 
         mounted() {
             EventBus.$on("go-to-mylist", () => {
                 this.tabHref = "tab-MyList";
             });
-            EventBus.$on("show-message", () => {
-                this.showMessage = true;
+            EventBus.$on("show-message", (id: string) => {
+                this.showMessageHandler(id);
             });
             this.ersouDataLoading = true;
             FBApi.FBItemsCollection().onSnapshot(data => {
@@ -263,25 +268,23 @@
                     const imgArr: string[] = el.data().images
                         ? el.data().images.split(",")
                         : [brokenImg];
-                    if(el.data().owner !== this.currentUser  && el.data().status){
-                        temp.push({
-                            id: el.id,
-                            title: el.data().title,
-                            messages: el.data().messages,
-                            description: el.data().description,
-                            price: el.data().price,
-                            created: datetimeMixin.filters.timestampToDateAndTime(
-                                el.data().created.seconds
-                            ),
-                            sell: el.data().sell,
-                            currency: el.data().currency,
-                            address: el.data().address,
-                            condition: conditionStr,
-                            images: imgArr,
-                            owner: el.data().owner,
-                            status: el.data().status
-                        });
-                    }
+                    temp.push({
+                        id: el.id,
+                        title: el.data().title,
+                        messages: el.data().messages,
+                        description: el.data().description,
+                        price: el.data().price,
+                        created: datetimeMixin.filters.timestampToDateAndTime(
+                            el.data().created.seconds
+                        ),
+                        sell: el.data().sell,
+                        currency: el.data().currency,
+                        address: el.data().address,
+                        condition: conditionStr,
+                        images: imgArr,
+                        owner: el.data().owner,
+                        status: el.data().status
+                    });
                 });
                 this.items = temp;
                 this.ersouDataLoading = false;
@@ -290,7 +293,7 @@
 
         @Watch("items")
         onItemsChange() {
-            this.chosenItem = this.items.filter(el => el.id === this.chosenId);
+            this.chosenItem = this.items.filter(el => el.id === this.chosenId)[0];
         }
 
         nextPage() {
@@ -307,13 +310,13 @@
 
         showDetailHandler(id: string) {
             this.chosenId = id;
-            this.chosenItem = this.items.filter(el => el.id === id);
+            this.chosenItem = this.items.filter(el => el.id === id)[0];
             this.showDetail = true;
         }
 
         showMessageHandler(id: string) {
             this.chosenId = id;
-            this.chosenItem = this.items.filter(el => el.id === id);
+            this.chosenItem = this.items.filter(el => el.id === id)[0];
             this.showMessage = true;
         }
 
@@ -323,7 +326,7 @@
 
         get selectedItems(): Items[] {
             return this.items.filter(
-                el => el.sell !== (this.chosenTab === TransactionType.Sell)
+                el => el.sell !== (this.chosenTab === TransactionType.Sell) && el.owner !== this.currentUser && el.status
             );
         }
     }

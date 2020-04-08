@@ -1,6 +1,6 @@
 <template>
 	<v-app id="inspire">
-		<v-navigation-drawer app v-model="drawer" :right="true" v-if="!this.isLandingPage && user.data">
+		<v-navigation-drawer temporary app v-model="drawer" :right="true" v-if="!this.isLandingPage && user.data">
 			<v-list dense nav class="py-0">
 				<v-list-item two-line>
 					<v-list-item-avatar>
