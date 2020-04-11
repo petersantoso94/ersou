@@ -13,8 +13,26 @@
                             v-model="selectedItem"
                             hide-default-footer
                     >
+                        <template v-slot:item.price="props">
+                            <v-edit-dialog
+                                    :return-value.sync="props.item.price"
+                                    @save="saveQuickEdit(props.item,'price')"
+                                    @cancel="cancelQuickEdit"
+                                    @open="openQuickEdit"
+                            > {{ props.item.price }}
+                                <template v-slot:input>
+                                    <v-text-field
+                                            v-model="props.item.price"
+                                            :rules="[rules.required]"
+                                            label="Edit"
+                                            type="number"
+                                            single-line
+                                    ></v-text-field>
+                                </template>
+                            </v-edit-dialog>
+                        </template>
                         <template v-slot:item.sell="{ item }">
-                            <v-chip :color="getColor(item)" dark>{{ getStatusString(item) }}</v-chip>
+                            <v-chip :color="getColor(item)" @click="openEditDialog(item)" dark>{{ getStatusString(item) }}</v-chip>
                         </template>
                         <template v-slot:item.actions="{ item }">
                             <v-btn x-small fab dark color="blue"
@@ -22,10 +40,6 @@
                                 <v-badge :color="getIsMessageUnread(item)?'red':''" dot>
                                     <v-icon dark>mdi-message</v-icon>
                                 </v-badge>
-                            </v-btn>
-                            <v-btn x-small fab dark :color="item.status?'red':'green'"
-                                   @click="openEditDialog(item)" class="mr-2">
-                                <v-icon dark>{{item.status?'mdi-delete':'mdi-check'}}</v-icon>
                             </v-btn>
                         </template>
                         <template slot="no-data">
@@ -48,6 +62,9 @@
                                         label="Search"
                                 ></v-text-field>
                             </v-toolbar>
+                            <v-alert type="info">
+                                Click on the detail to edit.
+                            </v-alert>
                         </template>
                         <template v-slot:footer>
                             <v-row class="mt-2" align="center" justify="center">
@@ -109,13 +126,17 @@
                     <v-btn
                             color="green darken-1"
                             text
-                            @click="deleteItem()"
+                            @click="putEdit()"
                     >
                         Save
                     </v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
+        <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
+            {{ snackText }}
+            <v-btn text @click="snack = false">Close</v-btn>
+        </v-snackbar>
         <v-overlay :value="loading" style="z-index: 9999">
             <v-progress-circular indeterminate size="70"></v-progress-circular>
         </v-overlay>
@@ -128,6 +149,7 @@
     import {Fields, Items, UpdateFieldOptions} from "@/models/interfaces/Items";
     import EventBus, {SystemAlert} from "@/utils/event-bus";
     import store from "@/store";
+    import {IRule} from "@/models/interfaces/Common";
 
     @Component({})
     export default class MyList extends Vue {
@@ -137,10 +159,17 @@
         itemsPerPage: number = 10;
         page: number = 1;
         loading: boolean = false;
+        snack: boolean = false;
+        snackColor: string = '';
+        snackText: string = '';
         search: string = "";
         textDialog: string = "";
         dialog: boolean = false;
-        selectedEditItem!: Items;
+        selectedEditItem!: any;
+        selectedEditField!: string;
+        rules: IRule = {
+            required: (value: string | number) => value === 0 || !!value || "Required"
+        };
         currentUser: string = store.getters["User/User"].data.email;
         itemHeaders = [
             {
@@ -157,7 +186,7 @@
             {text: 'Address', value: 'address'},
             {text: 'Condition', value: 'condition'},
             {text: 'Status', value: 'sell'},
-            {text: 'Actions', value: 'actions', sortable: false},
+            {text: '', value: 'actions', sortable: false},
         ];
 
 
@@ -169,13 +198,37 @@
             this.textDialog = `Are you sure want to change the item status to ${this.getRevertStatusString(item)}?`;
             this.dialog = true;
             this.selectedEditItem = item;
+            this.selectedEditField = 'status';
         }
 
-        deleteItem() {
+        saveQuickEdit(item: any, field:string){
+            this.textDialog = `Are you sure want to change the ${field} to ${item[field]}?`;
+            this.dialog = true;
+            this.selectedEditItem = item;
+            this.selectedEditField = field;
+        }
+
+        openQuickEdit(){
+            this.snack = true
+            this.snackColor = 'info'
+            this.snackText = 'Press Enter to save your content.'
+        }
+
+        cancelQuickEdit(){
+            this.snack = true
+            this.snackColor = 'error'
+            this.snackText = 'Canceled'
+        }
+
+        putEdit() {
             this.loading = true;
+            let newV = this.selectedEditItem[this.selectedEditField]
+            if(this.selectedEditField === 'status'){
+                newV = !this.selectedEditItem.status;
+            }
             let options: UpdateFieldOptions = {
                 id: this.selectedEditItem.id,
-                fields: [{field: 'status', newVal: !this.selectedEditItem.status}],
+                fields: [{field: this.selectedEditField, newVal: newV}],
                 successCallback: () => {
                     this.loading = false;
                     this.dialog = false;
