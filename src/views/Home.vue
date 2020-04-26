@@ -9,7 +9,9 @@
                                    @click="chosenTab = i.component">{{ i.displayName }}
                             </v-tab>
                             <v-tab-item v-for="i in tabs" :key="i.component" :value="'tab-' + i.component">
-                                <component :is="i.component" :items="items"/>
+                                <keep-alive>
+                                    <component :is="i.component" :items="items"/>
+                                </keep-alive>
                             </v-tab-item>
                         </v-tabs>
                     </v-col>
@@ -210,7 +212,7 @@
         },
         mixins: [titleMixin]
     })
-    export default class Landing extends Vue {
+    export default class Home extends Vue {
         items: Items[] = [];
         itemsPerPageArray: number[] = [4, 8, 12];
         page: number = 1;

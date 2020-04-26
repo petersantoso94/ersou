@@ -3,6 +3,11 @@ export enum TransactionType {
     Buy = "Buy"
 }
 
+export enum LoginType{
+    Email="Email",
+    Phone="Phone"
+}
+
 export enum QualityMeasurement {
     Broken = "Broken",
     Poor = "Poor Condition",

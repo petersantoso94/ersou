@@ -14,6 +14,9 @@ export default {
     async FBLogin(data: IUser): Promise<firebase.auth.UserCredential> {
         return await firebase.auth().signInWithEmailAndPassword(data.email, data.password)
     },
+    async FBPhoneLogin(phoneNumber: string, appVerifier: firebase.auth.ApplicationVerifier):Promise<firebase.auth.ConfirmationResult>{
+        return await firebase.auth().signInWithPhoneNumber(phoneNumber,appVerifier);
+    },
     async FBLogout(): Promise<void> {
         return await firebase.auth().signOut()
     },
